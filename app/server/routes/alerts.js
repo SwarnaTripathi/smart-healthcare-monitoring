@@ -71,16 +71,18 @@ router.put('/acknowledge-all', auth, authorize('doctor', 'admin'), async (req, r
 // GET /api/alerts - Get all alerts (role-filtered)
 router.get('/', auth, async (req, res) => {
   try {
-    const { limit = 50, acknowledged, type, patientId } = req.query;
+    const { limit = 200, acknowledged, type, patientId } = req.query;
     let query = {};
     if (acknowledged !== undefined) query.acknowledged = acknowledged === 'true';
     if (type) query.type = type;
-    if (patientId) query.patientId = patientId;
 
-    // Apply role-based filter
+    // Apply role-based filter first
     const roleFilter = await _buildAlertFilter(req.user);
     if (!roleFilter) return res.json({ alerts: [], unacknowledgedCount: 0 });
     Object.assign(query, roleFilter);
+
+    // If a specific patientId was requested, use it (overrides role filter's $in)
+    if (patientId) query.patientId = patientId;
 
     const alerts = await Alert.find(query).sort({ createdAt: -1 }).limit(parseInt(limit)).populate('acknowledgedBy', 'name role');
     const unacknowledgedCount = await Alert.countDocuments({ ...roleFilter, acknowledged: false });
