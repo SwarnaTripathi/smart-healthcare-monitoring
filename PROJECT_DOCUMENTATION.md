@@ -525,8 +525,10 @@ python simulator/iot_simulator.py PT-00001
 | POST | /api/health-data | No | Store IoT reading |
 | GET | /api/health-data/:patientId | Yes | Get history |
 | GET | /api/alerts/stats/summary | Yes | Alert stats (role-scoped) |
-| GET | /api/alerts | Yes | List alerts (role-filtered) |
-| PUT | /api/alerts/:id/acknowledge | Doctor/Admin | Ack alert |
+| GET | /api/alerts/my-patient-ids | Yes | Patient IDs this user can see (for socket filtering) |
+| GET | /api/alerts | Yes | List alerts (role-filtered, ?patientId= for per-patient) |
+| PUT | /api/alerts/acknowledge-all | Doctor/Admin | Ack all visible alerts (role-scoped) |
+| PUT | /api/alerts/:id/acknowledge | Doctor/Admin | Ack single alert |
 | POST | /api/reports | Yes | Upload report + lab values + AI analysis |
 | POST | /api/reports/:id/analyze | Yes | Re-analyze existing report with new lab values |
 | GET | /api/reports/:patientId | Yes | Get reports with AI analysis |
