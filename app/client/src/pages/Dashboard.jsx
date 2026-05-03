@@ -12,26 +12,36 @@ const MAX_POINTS = 30;
 
 function Dashboard() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ total: 0, active: 0, critical: 0, discharged: 0 });
+  const [stats, setStats] = useState({ total: 0, active: 0, critical: 0 });
   const [alertStats, setAlertStats] = useState({ unacknowledged: 0, critical: 0 });
   const [latestVitals, setLatestVitals] = useState(null);
   const [chartData, setChartData] = useState({ labels: [], hr: [], spo2: [], temp: [] });
   const [recentAlerts, setRecentAlerts] = useState([]);
-  const myPatientIdsRef = useRef(null); // null = admin (all), array = filtered
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState('all');
+  const myPatientIdsRef = useRef(null);
+  const selectedPatientRef = useRef('all');
 
   useEffect(() => {
     fetchStats();
     fetchMyPatientIds();
     fetchRecentAlerts();
+    fetchPatients();
     const interval = setInterval(fetchStats, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch which patient IDs this user is allowed to see
   const fetchMyPatientIds = async () => {
     try {
       const { data } = await api.get('/alerts/my-patient-ids');
-      myPatientIdsRef.current = data.patientIds; // null for admin, array for others
+      myPatientIdsRef.current = data.patientIds;
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const { data } = await api.get('/patients');
+      setPatients(data.patients || []);
     } catch (e) { console.error(e); }
   };
 
@@ -44,18 +54,20 @@ function Dashboard() {
 
   useEffect(() => {
     socket.on('health-data', (data) => {
-      // Filter: only show data for my patients
       const allowed = myPatientIdsRef.current;
       if (allowed !== null && !allowed.includes(data.patientId)) return;
+      const sel = selectedPatientRef.current;
+      if (sel !== 'all' && data.patientId !== sel) return;
 
       setLatestVitals(data);
       setChartData(prev => {
         const time = new Date(data.timestamp).toLocaleTimeString();
-        const labels = [...prev.labels, time].slice(-MAX_POINTS);
-        const hr = [...prev.hr, data.heartRate].slice(-MAX_POINTS);
-        const spo2 = [...prev.spo2, data.spO2].slice(-MAX_POINTS);
-        const temp = [...prev.temp, data.temperature].slice(-MAX_POINTS);
-        return { labels, hr, spo2, temp };
+        return {
+          labels: [...prev.labels, time].slice(-MAX_POINTS),
+          hr: [...prev.hr, data.heartRate].slice(-MAX_POINTS),
+          spo2: [...prev.spo2, data.spO2].slice(-MAX_POINTS),
+          temp: [...prev.temp, data.temperature].slice(-MAX_POINTS),
+        };
       });
     });
 
@@ -68,6 +80,13 @@ function Dashboard() {
 
     return () => { socket.off('health-data'); socket.off('new-alert'); };
   }, []);
+
+  const handlePatientSelect = (pid) => {
+    setSelectedPatient(pid);
+    selectedPatientRef.current = pid;
+    setLatestVitals(null);
+    setChartData({ labels: [], hr: [], spo2: [], temp: [] });
+  };
 
   const fetchStats = async () => {
     try {
@@ -83,10 +102,10 @@ function Dashboard() {
   const chartOpts = {
     responsive: true, maintainAspectRatio: false,
     animation: { duration: 400 },
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b', borderColor: 'rgba(148,163,184,0.2)', borderWidth: 1, titleFont: { family: 'Inter' }, bodyFont: { family: 'Inter' } } },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b', borderColor: 'rgba(148,163,184,0.2)', borderWidth: 1 } },
     scales: {
-      x: { grid: { color: 'rgba(148,163,184,0.06)' }, ticks: { color: '#64748b', font: { size: 10, family: 'Inter' }, maxTicksLimit: 8 } },
-      y: { grid: { color: 'rgba(148,163,184,0.06)' }, ticks: { color: '#64748b', font: { size: 10, family: 'Inter' } } }
+      x: { grid: { color: 'rgba(148,163,184,0.06)' }, ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 8 } },
+      y: { grid: { color: 'rgba(148,163,184,0.06)' }, ticks: { color: '#64748b', font: { size: 10 } } }
     },
     elements: { point: { radius: 2, hoverRadius: 5 }, line: { tension: 0.4, borderWidth: 2 } }
   };
@@ -99,16 +118,16 @@ function Dashboard() {
     return 'normal';
   };
 
+  const isDoctor = user?.role === 'doctor';
+
   return (
     <>
       <div className="page-header">
         <div>
           <h1>Dashboard</h1>
-          <p>Welcome back, {user?.name} — here's your {user?.role === 'doctor' ? 'patient' : 'system'} overview</p>
+          <p>Welcome back, {user?.name} — here's your {isDoctor ? 'patient' : 'system'} overview</p>
         </div>
-        <div className="live-indicator">
-          <span className="live-dot"></span> LIVE
-        </div>
+        <div className="live-indicator"><span className="live-dot"></span> LIVE</div>
       </div>
 
       {/* Stats */}
@@ -116,7 +135,7 @@ function Dashboard() {
         <div className="stat-card">
           <div className="stat-icon green"><FiUsers /></div>
           <div className="stat-value">{stats.total}</div>
-          <div className="stat-label">{user?.role === 'doctor' ? 'My Patients' : 'Total Patients'}</div>
+          <div className="stat-label">{isDoctor ? 'My Patients' : 'Total Patients'}</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon blue"><FiActivity /></div>
@@ -134,6 +153,28 @@ function Dashboard() {
           <div className="stat-label">Pending Alerts</div>
         </div>
       </div>
+
+      {/* Patient Selector for doctors */}
+      {!user?.role !== 'patient' && patients.length > 1 && (
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6, display: 'block', fontWeight: 600 }}>
+            Monitor Patient (Live Vitals)
+          </label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className={`btn btn-sm ${selectedPatient === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ width: 'auto' }} onClick={() => handlePatientSelect('all')}>
+              All Patients
+            </button>
+            {patients.map(p => (
+              <button key={p.patientId}
+                className={`btn btn-sm ${selectedPatient === p.patientId ? 'btn-primary' : 'btn-secondary'}`}
+                style={{ width: 'auto' }} onClick={() => handlePatientSelect(p.patientId)}>
+                {p.name} ({p.patientId})
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Live Vitals */}
       {latestVitals && (
@@ -169,7 +210,7 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Charts + Recent Alerts side by side */}
+      {/* Charts */}
       <div className="charts-grid">
         <div className="card">
           <div className="card-header"><h3><FiHeart style={{ marginRight: 8, color: '#ef4444' }} />Heart Rate (bpm)</h3></div>

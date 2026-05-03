@@ -3,16 +3,20 @@ import api from '../utils/api';
 import socket from '../utils/socket';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { FiCheckCircle, FiAlertTriangle, FiAlertOctagon, FiBell } from 'react-icons/fi';
+import { FiCheckCircle, FiAlertTriangle, FiAlertOctagon, FiBell, FiFilter } from 'react-icons/fi';
 
 function Alerts() {
   const { user } = useAuth();
+  const isPatient = user?.role === 'patient';
   const [alerts, setAlerts] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [selectedPatient, setSelectedPatient] = useState('all');
   const myPatientIdsRef = useRef(null);
 
   useEffect(() => {
+    fetchPatients();
     fetchAlerts();
     fetchMyPatientIds();
 
@@ -37,12 +41,27 @@ function Alerts() {
     } catch (e) { console.error(e); }
   };
 
-  const fetchAlerts = async () => {
+  const fetchPatients = async () => {
     try {
-      const { data } = await api.get('/alerts?limit=100');
+      const { data } = await api.get('/patients');
+      setPatients(data.patients || []);
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchAlerts = async (patientId) => {
+    setLoading(true);
+    try {
+      let url = '/alerts?limit=200';
+      if (patientId && patientId !== 'all') url += `&patientId=${patientId}`;
+      const { data } = await api.get(url);
       setAlerts(data.alerts);
     } catch (e) { toast.error('Failed to load alerts'); }
     finally { setLoading(false); }
+  };
+
+  const handlePatientFilter = (pid) => {
+    setSelectedPatient(pid);
+    fetchAlerts(pid);
   };
 
   const acknowledge = async (id) => {
@@ -70,11 +89,18 @@ function Alerts() {
 
   const unackCount = alerts.filter(a => !a.acknowledged).length;
 
+  // Count alerts per patient for the filter badges
+  const patientAlertCounts = {};
+  alerts.forEach(a => {
+    const key = a.patientId;
+    patientAlertCounts[key] = (patientAlertCounts[key] || 0) + 1;
+  });
+
   return (
     <>
       <div className="page-header">
         <div>
-          <h1>{user?.role === 'patient' ? 'My Alerts' : 'Alerts'}</h1>
+          <h1>{isPatient ? 'My Alerts' : 'Alerts'}</h1>
           <p>{unackCount} unacknowledged alert{unackCount !== 1 ? 's' : ''}
             {user?.role === 'doctor' && ' for your patients'}
           </p>
@@ -86,6 +112,32 @@ function Alerts() {
         )}
       </div>
 
+      {/* Patient Filter — doctors/admins */}
+      {!isPatient && patients.length > 1 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: 8, fontWeight: 600 }}>
+            <FiFilter style={{ marginRight: 4 }} /> Filter by Patient
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button
+              className={`btn btn-sm ${selectedPatient === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ width: 'auto' }}
+              onClick={() => handlePatientFilter('all')}>
+              All Patients ({alerts.length})
+            </button>
+            {patients.map(p => (
+              <button key={p.patientId}
+                className={`btn btn-sm ${selectedPatient === p.patientId ? 'btn-primary' : 'btn-secondary'}`}
+                style={{ width: 'auto' }}
+                onClick={() => handlePatientFilter(p.patientId)}>
+                {p.name} {patientAlertCounts[p.patientId] ? `(${patientAlertCounts[p.patientId]})` : ''}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Type Filters */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         {['all', 'unacknowledged', 'critical', 'warning'].map(f => (
           <button key={f} className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-secondary'}`}
@@ -103,7 +155,7 @@ function Alerts() {
           <div className="empty-state">
             <div className="empty-icon"><FiBell /></div>
             <h3>No Alerts</h3>
-            <p>{user?.role === 'patient' ? 'No alerts for your health data' : 'No alerts to display'}</p>
+            <p>{isPatient ? 'No alerts for your health data' : 'No alerts to display'}</p>
           </div>
         ) : (
           filtered.map(alert => (
