@@ -9,7 +9,6 @@ const router = express.Router();
 async function _getPatientIdForUser(user) {
   const patient = await Patient.findOne({ user: user._id });
   if (patient) return patient.patientId;
-  // Fallback: match by name
   const byName = await Patient.findOne({ name: { $regex: new RegExp(`^${user.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
   if (byName) {
     byName.user = user._id;
@@ -19,15 +18,31 @@ async function _getPatientIdForUser(user) {
   return null;
 }
 
+// Helper: get all patientIds assigned to a doctor
+async function _getDoctorPatientIds(userId) {
+  const patients = await Patient.find({ assignedDoctor: userId }).select('patientId');
+  return patients.map(p => p.patientId);
+}
+
+// Helper: build role-based alert filter
+async function _buildAlertFilter(user) {
+  if (user.role === 'patient') {
+    const pid = await _getPatientIdForUser(user);
+    return pid ? { patientId: pid } : null;
+  }
+  if (user.role === 'doctor') {
+    const pids = await _getDoctorPatientIds(user._id);
+    return { patientId: { $in: pids } };
+  }
+  // admin sees all
+  return {};
+}
+
 // GET /api/alerts/stats/summary - Alert statistics (BEFORE /:id)
 router.get('/stats/summary', auth, async (req, res) => {
   try {
-    let filter = {};
-    if (req.user.role === 'patient') {
-      const pid = await _getPatientIdForUser(req.user);
-      if (pid) filter.patientId = pid;
-      else return res.json({ stats: { total: 0, unacknowledged: 0, critical: 0, warning: 0, recent: 0 } });
-    }
+    const filter = await _buildAlertFilter(req.user);
+    if (!filter) return res.json({ stats: { total: 0, unacknowledged: 0, critical: 0, warning: 0, recent: 0 } });
 
     const total = await Alert.countDocuments(filter);
     const unacknowledged = await Alert.countDocuments({ ...filter, acknowledged: false });
@@ -44,7 +59,9 @@ router.get('/stats/summary', auth, async (req, res) => {
 // PUT /api/alerts/acknowledge-all (BEFORE /:id)
 router.put('/acknowledge-all', auth, authorize('doctor', 'admin'), async (req, res) => {
   try {
-    await Alert.updateMany({ acknowledged: false }, { acknowledged: true, acknowledgedBy: req.user._id, acknowledgedAt: new Date() });
+    const filter = await _buildAlertFilter(req.user);
+    if (!filter) return res.json({ message: 'No alerts to acknowledge' });
+    await Alert.updateMany({ ...filter, acknowledged: false }, { acknowledged: true, acknowledgedBy: req.user._id, acknowledgedAt: new Date() });
     res.json({ message: 'All alerts acknowledged' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -60,17 +77,30 @@ router.get('/', auth, async (req, res) => {
     if (type) query.type = type;
     if (patientId) query.patientId = patientId;
 
-    // Patient users can only see their own alerts
-    if (req.user.role === 'patient') {
-      const pid = await _getPatientIdForUser(req.user);
-      if (pid) query.patientId = pid;
-      else return res.json({ alerts: [], unacknowledgedCount: 0 });
-    }
+    // Apply role-based filter
+    const roleFilter = await _buildAlertFilter(req.user);
+    if (!roleFilter) return res.json({ alerts: [], unacknowledgedCount: 0 });
+    Object.assign(query, roleFilter);
 
     const alerts = await Alert.find(query).sort({ createdAt: -1 }).limit(parseInt(limit)).populate('acknowledgedBy', 'name role');
-    const unackFilter = req.user.role === 'patient' && query.patientId ? { acknowledged: false, patientId: query.patientId } : { acknowledged: false };
-    const unacknowledgedCount = await Alert.countDocuments(unackFilter);
+    const unacknowledgedCount = await Alert.countDocuments({ ...roleFilter, acknowledged: false });
     res.json({ alerts, unacknowledgedCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/alerts/my-patient-ids - return the patientIds this user can see (for frontend socket filtering)
+router.get('/my-patient-ids', auth, async (req, res) => {
+  try {
+    if (req.user.role === 'admin') return res.json({ patientIds: null }); // null = all
+    if (req.user.role === 'doctor') {
+      const pids = await _getDoctorPatientIds(req.user._id);
+      return res.json({ patientIds: pids });
+    }
+    // patient
+    const pid = await _getPatientIdForUser(req.user);
+    return res.json({ patientIds: pid ? [pid] : [] });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

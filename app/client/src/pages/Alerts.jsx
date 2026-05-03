@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import socket from '../utils/socket';
 import toast from 'react-hot-toast';
@@ -9,16 +9,33 @@ function Alerts() {
   const { user } = useAuth();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, unacknowledged, critical, warning
+  const [filter, setFilter] = useState('all');
+  const myPatientIdsRef = useRef(null);
 
   useEffect(() => {
     fetchAlerts();
+    fetchMyPatientIds();
+
     socket.on('new-alert', (alert) => {
+      const allowed = myPatientIdsRef.current;
+      if (allowed !== null && !allowed.includes(alert.patientId)) return;
       setAlerts(prev => [alert, ...prev]);
       toast.error(alert.message, { icon: '🚨', duration: 5000 });
     });
-    return () => { socket.off('new-alert'); };
+
+    socket.on('alert-acknowledged', (ackAlert) => {
+      setAlerts(prev => prev.map(a => a._id === ackAlert._id ? { ...a, acknowledged: true } : a));
+    });
+
+    return () => { socket.off('new-alert'); socket.off('alert-acknowledged'); };
   }, []);
+
+  const fetchMyPatientIds = async () => {
+    try {
+      const { data } = await api.get('/alerts/my-patient-ids');
+      myPatientIdsRef.current = data.patientIds;
+    } catch (e) { console.error(e); }
+  };
 
   const fetchAlerts = async () => {
     try {
@@ -57,8 +74,10 @@ function Alerts() {
     <>
       <div className="page-header">
         <div>
-          <h1>Alerts</h1>
-          <p>{unackCount} unacknowledged alert{unackCount !== 1 ? 's' : ''}</p>
+          <h1>{user?.role === 'patient' ? 'My Alerts' : 'Alerts'}</h1>
+          <p>{unackCount} unacknowledged alert{unackCount !== 1 ? 's' : ''}
+            {user?.role === 'doctor' && ' for your patients'}
+          </p>
         </div>
         {(user?.role === 'doctor' || user?.role === 'admin') && unackCount > 0 && (
           <button className="btn btn-secondary" style={{ width: 'auto' }} onClick={acknowledgeAll}>
@@ -67,7 +86,6 @@ function Alerts() {
         )}
       </div>
 
-      {/* Filters */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         {['all', 'unacknowledged', 'critical', 'warning'].map(f => (
           <button key={f} className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-secondary'}`}
@@ -78,7 +96,6 @@ function Alerts() {
         ))}
       </div>
 
-      {/* Alerts List */}
       <div className="card">
         {loading ? (
           <div className="loading-container"><div className="spinner"></div></div>
@@ -86,7 +103,7 @@ function Alerts() {
           <div className="empty-state">
             <div className="empty-icon"><FiBell /></div>
             <h3>No Alerts</h3>
-            <p>System is running normally — no alerts to display</p>
+            <p>{user?.role === 'patient' ? 'No alerts for your health data' : 'No alerts to display'}</p>
           </div>
         ) : (
           filtered.map(alert => (

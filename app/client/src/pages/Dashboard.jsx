@@ -16,16 +16,38 @@ function Dashboard() {
   const [alertStats, setAlertStats] = useState({ unacknowledged: 0, critical: 0 });
   const [latestVitals, setLatestVitals] = useState(null);
   const [chartData, setChartData] = useState({ labels: [], hr: [], spo2: [], temp: [] });
-  const chartRef = useRef(chartData);
+  const [recentAlerts, setRecentAlerts] = useState([]);
+  const myPatientIdsRef = useRef(null); // null = admin (all), array = filtered
 
   useEffect(() => {
     fetchStats();
+    fetchMyPatientIds();
+    fetchRecentAlerts();
     const interval = setInterval(fetchStats, 15000);
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch which patient IDs this user is allowed to see
+  const fetchMyPatientIds = async () => {
+    try {
+      const { data } = await api.get('/alerts/my-patient-ids');
+      myPatientIdsRef.current = data.patientIds; // null for admin, array for others
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchRecentAlerts = async () => {
+    try {
+      const { data } = await api.get('/alerts?limit=5&acknowledged=false');
+      setRecentAlerts(data.alerts);
+    } catch (e) { console.error(e); }
+  };
+
   useEffect(() => {
     socket.on('health-data', (data) => {
+      // Filter: only show data for my patients
+      const allowed = myPatientIdsRef.current;
+      if (allowed !== null && !allowed.includes(data.patientId)) return;
+
       setLatestVitals(data);
       setChartData(prev => {
         const time = new Date(data.timestamp).toLocaleTimeString();
@@ -37,8 +59,11 @@ function Dashboard() {
       });
     });
 
-    socket.on('new-alert', () => {
+    socket.on('new-alert', (alert) => {
+      const allowed = myPatientIdsRef.current;
+      if (allowed !== null && !allowed.includes(alert.patientId)) return;
       setAlertStats(prev => ({ ...prev, unacknowledged: prev.unacknowledged + 1 }));
+      setRecentAlerts(prev => [alert, ...prev].slice(0, 5));
     });
 
     return () => { socket.off('health-data'); socket.off('new-alert'); };
@@ -79,7 +104,7 @@ function Dashboard() {
       <div className="page-header">
         <div>
           <h1>Dashboard</h1>
-          <p>Welcome back, {user?.name} — here's your system overview</p>
+          <p>Welcome back, {user?.name} — here's your {user?.role === 'doctor' ? 'patient' : 'system'} overview</p>
         </div>
         <div className="live-indicator">
           <span className="live-dot"></span> LIVE
@@ -91,7 +116,7 @@ function Dashboard() {
         <div className="stat-card">
           <div className="stat-icon green"><FiUsers /></div>
           <div className="stat-value">{stats.total}</div>
-          <div className="stat-label">Total Patients</div>
+          <div className="stat-label">{user?.role === 'doctor' ? 'My Patients' : 'Total Patients'}</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon blue"><FiActivity /></div>
@@ -100,12 +125,12 @@ function Dashboard() {
         </div>
         <div className="stat-card">
           <div className="stat-icon red"><FiAlertTriangle /></div>
-          <div className="stat-value">{stats.critical}</div>
-          <div className="stat-label">Critical Patients</div>
+          <div className="stat-value">{alertStats.critical || 0}</div>
+          <div className="stat-label">Critical Alerts</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon yellow"><FiCpu /></div>
-          <div className="stat-value">{alertStats.unacknowledged}</div>
+          <div className="stat-value">{alertStats.unacknowledged || 0}</div>
           <div className="stat-label">Pending Alerts</div>
         </div>
       </div>
@@ -144,41 +169,45 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Charts */}
+      {/* Charts + Recent Alerts side by side */}
       <div className="charts-grid">
         <div className="card">
-          <div className="card-header">
-            <h3><FiHeart style={{ marginRight: 8, color: '#ef4444' }} />Heart Rate (bpm)</h3>
-          </div>
-          <div className="card-body">
-            <div className="chart-container">
-              <Line data={{ labels: chartData.labels, datasets: [{ data: chartData.hr, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)', fill: true }] }} options={chartOpts} />
-            </div>
-          </div>
+          <div className="card-header"><h3><FiHeart style={{ marginRight: 8, color: '#ef4444' }} />Heart Rate (bpm)</h3></div>
+          <div className="card-body"><div className="chart-container">
+            <Line data={{ labels: chartData.labels, datasets: [{ data: chartData.hr, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)', fill: true }] }} options={chartOpts} />
+          </div></div>
         </div>
-
         <div className="card">
-          <div className="card-header">
-            <h3><FiWind style={{ marginRight: 8, color: '#4cc9f0' }} />SpO2 (%)</h3>
-          </div>
-          <div className="card-body">
-            <div className="chart-container">
-              <Line data={{ labels: chartData.labels, datasets: [{ data: chartData.spo2, borderColor: '#4cc9f0', backgroundColor: 'rgba(76,201,240,0.08)', fill: true }] }} options={chartOpts} />
-            </div>
-          </div>
+          <div className="card-header"><h3><FiWind style={{ marginRight: 8, color: '#4cc9f0' }} />SpO2 (%)</h3></div>
+          <div className="card-body"><div className="chart-container">
+            <Line data={{ labels: chartData.labels, datasets: [{ data: chartData.spo2, borderColor: '#4cc9f0', backgroundColor: 'rgba(76,201,240,0.08)', fill: true }] }} options={chartOpts} />
+          </div></div>
         </div>
-
         <div className="card">
-          <div className="card-header">
-            <h3><FiThermometer style={{ marginRight: 8, color: '#fbbf24' }} />Temperature (°C)</h3>
-          </div>
-          <div className="card-body">
-            <div className="chart-container">
-              <Line data={{ labels: chartData.labels, datasets: [{ data: chartData.temp, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.08)', fill: true }] }} options={chartOpts} />
-            </div>
-          </div>
+          <div className="card-header"><h3><FiThermometer style={{ marginRight: 8, color: '#fbbf24' }} />Temperature (°C)</h3></div>
+          <div className="card-body"><div className="chart-container">
+            <Line data={{ labels: chartData.labels, datasets: [{ data: chartData.temp, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.08)', fill: true }] }} options={chartOpts} />
+          </div></div>
         </div>
       </div>
+
+      {/* Recent Alerts */}
+      {recentAlerts.length > 0 && (
+        <div className="card" style={{ marginTop: 20 }}>
+          <div className="card-header"><h3><FiAlertTriangle style={{ marginRight: 8, color: '#f97316' }} />Recent Alerts</h3></div>
+          <div className="card-body" style={{ padding: 0 }}>
+            {recentAlerts.map(a => (
+              <div key={a._id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderBottom: '1px solid rgba(148,163,184,0.06)' }}>
+                <span style={{ fontSize: '1rem' }}>{a.type === 'critical' ? '🔴' : '🟡'}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.82rem', color: '#e2e8f0' }}>{a.message}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{a.patientName || a.patientId} · {new Date(a.createdAt).toLocaleString()}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!latestVitals && (
         <div className="card">
@@ -186,7 +215,7 @@ function Dashboard() {
             <div className="empty-icon">📡</div>
             <h3>Waiting for IoT Data</h3>
             <p>Start the IoT simulator to see real-time health data streaming here.<br />
-            Run: <code style={{ color: '#06d6a0' }}>python simulator/iot_simulator.py</code></p>
+            Run: <code style={{ color: '#06d6a0' }}>python simulator/iot_simulator.py PT-00001</code></p>
           </div>
         </div>
       )}
