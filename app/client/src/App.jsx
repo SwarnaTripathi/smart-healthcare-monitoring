@@ -48,8 +48,8 @@ function AppRoutes() {
       {/* Doctor + Admin routes */}
       <Route path="/patients" element={<ProtectedRoute roles={['doctor', 'admin']}><Layout><Patients /></Layout></ProtectedRoute>} />
 
-      {/* Patient-only routes */}
-      <Route path="/my-reports" element={<ProtectedRoute roles={['patient']}><Layout><MyReports /></Layout></ProtectedRoute>} />
+      {/* Reports — all roles can access */}
+      <Route path="/my-reports" element={<ProtectedRoute><Layout><MyReports /></Layout></ProtectedRoute>} />
       <Route path="/my-profile" element={<ProtectedRoute roles={['patient']}><Layout><MyProfile /></Layout></ProtectedRoute>} />
 
       {/* Admin-only routes */}

@@ -51,8 +51,10 @@ const LAB_FIELDS = [
 
 function MyReports() {
   const { user } = useAuth();
+  const isPatient = user?.role === 'patient';
   const [reports, setReports] = useState([]);
   const [patients, setPatients] = useState([]);
+  const [selectedPatientId, setSelectedPatientId] = useState('');
   const [loading, setLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
   const [file, setFile] = useState(null);
@@ -62,54 +64,64 @@ function MyReports() {
   const [expandedReport, setExpandedReport] = useState(null);
   const [showLabFields, setShowLabFields] = useState(false);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchPatients(); }, []);
 
-  const fetchData = async () => {
+  const fetchPatients = async () => {
     try {
       const pRes = await api.get('/patients');
       setPatients(pRes.data.patients);
       if (pRes.data.patients.length > 0) {
-        const rRes = await api.get(`/reports/${pRes.data.patients[0].patientId}`);
-        setReports(rRes.data.reports);
+        const first = pRes.data.patients[0].patientId;
+        setSelectedPatientId(first);
+        fetchReports(first);
+      } else {
+        setLoading(false);
       }
+    } catch (e) { console.error(e); setLoading(false); }
+  };
+
+  const fetchReports = async (patientId) => {
+    if (!patientId) return;
+    setLoading(true);
+    try {
+      const rRes = await api.get(`/reports/${patientId}`);
+      setReports(rRes.data.reports);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
+  };
+
+  const handlePatientChange = (pid) => {
+    setSelectedPatientId(pid);
+    setReports([]);
+    fetchReports(pid);
   };
 
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file) return toast.error('Please select a file');
-    if (!patients.length) return toast.error('No patient profile found');
+    if (!selectedPatientId) return toast.error('No patient selected');
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('patientId', patients[0].patientId);
+      formData.append('patientId', selectedPatientId);
       formData.append('title', form.title);
       formData.append('type', form.type);
       formData.append('description', form.description);
       const filledLabs = Object.fromEntries(Object.entries(labValues).filter(([, v]) => v !== ''));
       if (Object.keys(filledLabs).length > 0) formData.append('labValues', JSON.stringify(filledLabs));
-
       await api.post('/reports', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('Report uploaded & analyzed!');
-      setShowUpload(false);
-      setFile(null);
-      setForm({ title: '', type: 'lab_report', description: '' });
-      setLabValues({});
-      setShowLabFields(false);
-      fetchData();
+      setShowUpload(false); setFile(null); setForm({ title: '', type: 'lab_report', description: '' }); setLabValues({}); setShowLabFields(false);
+      fetchReports(selectedPatientId);
     } catch (e) { toast.error(e.response?.data?.error || 'Upload failed'); }
     finally { setUploading(false); }
   };
 
   const deleteReport = async (id) => {
     if (!confirm('Delete this report?')) return;
-    try {
-      await api.delete(`/reports/${id}`);
-      toast.success('Report deleted');
-      setReports(prev => prev.filter(r => r._id !== id));
-    } catch (e) { toast.error('Failed to delete'); }
+    try { await api.delete(`/reports/${id}`); toast.success('Report deleted'); setReports(prev => prev.filter(r => r._id !== id)); }
+    catch (e) { toast.error('Failed to delete'); }
   };
 
   const fileIcon = (mime) => {
@@ -121,27 +133,46 @@ function MyReports() {
   const formatSize = (bytes) => bytes < 1024 ? bytes + ' B' : bytes < 1048576 ? (bytes / 1024).toFixed(1) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB';
   const statusColor = { normal: '#06d6a0', borderline: '#fbbf24', abnormal: '#f97316', critical: '#ef4444' };
 
+  const selectedPatientName = patients.find(p => p.patientId === selectedPatientId)?.name || '';
+
   return (
     <>
       <div className="page-header">
-        <div><h1>My Reports</h1><p>Upload and manage your medical test reports</p></div>
+        <div>
+          <h1>{isPatient ? 'My Reports' : 'Patient Reports'}</h1>
+          <p>{isPatient ? 'Upload and manage your medical test reports' : `View and manage reports for ${selectedPatientName || 'patients'}`}</p>
+        </div>
         <button className="btn btn-primary" style={{ width: 'auto' }} onClick={() => setShowUpload(true)}><FiUpload /> Upload Report</button>
       </div>
+
+      {/* Patient Selector — doctors/admins only */}
+      {!isPatient && patients.length > 0 && (
+        <div style={{ marginBottom: 20, maxWidth: 400 }}>
+          <label style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6, display: 'block' }}>Select Patient</label>
+          <select className="form-control" value={selectedPatientId} onChange={e => handlePatientChange(e.target.value)}>
+            {patients.map(p => (
+              <option key={p.patientId} value={p.patientId}>{p.name} ({p.patientId})</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {loading ? <div className="loading-container"><div className="spinner"></div></div> : (
         <>
           {reports.length === 0 ? (
-            <div className="card"><div className="empty-state"><div className="empty-icon">📄</div><h3>No Reports Yet</h3><p>Upload your lab reports to get AI-powered health analysis</p></div></div>
+            <div className="card"><div className="empty-state"><div className="empty-icon">📄</div><h3>No Reports Yet</h3><p>{isPatient ? 'Upload your lab reports to get AI-powered health analysis' : `No reports found for ${selectedPatientName}`}</p></div></div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {reports.map(r => (
                 <div key={r._id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                  {/* Report row */}
                   <div style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', gap: 14, flexWrap: 'wrap' }}>
                     <div style={{ fontSize: '1.3rem' }}>{fileIcon(r.mimeType)}</div>
                     <div style={{ flex: 1, minWidth: 150 }}>
                       <div style={{ fontWeight: 600, color: '#e2e8f0' }}>{r.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{typeLabel[r.type] || r.type} · {formatSize(r.fileSize)} · {new Date(r.createdAt).toLocaleDateString()}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        {typeLabel[r.type] || r.type} · {formatSize(r.fileSize)} · {new Date(r.createdAt).toLocaleDateString()}
+                        {r.uploadedBy && <> · Uploaded by {r.uploadedBy.name}</>}
+                      </div>
                     </div>
                     {r.aiAnalysis?.overallStatus && (
                       <span style={{
@@ -161,16 +192,13 @@ function MyReports() {
                   {/* AI Analysis Panel */}
                   {expandedReport === r._id && r.aiAnalysis && (
                     <div style={{ borderTop: '1px solid rgba(148,163,184,0.1)', padding: '20px', background: 'rgba(15,23,42,0.4)' }}>
-                      {/* Summary */}
                       <div style={{ padding: '14px 16px', borderRadius: 10, marginBottom: 18, background: `${statusColor[r.aiAnalysis.overallStatus]}0d`, border: `1px solid ${statusColor[r.aiAnalysis.overallStatus]}25` }}>
                         <div style={{ fontWeight: 700, color: statusColor[r.aiAnalysis.overallStatus], fontSize: '0.88rem', marginBottom: 6 }}>AI Health Analysis</div>
                         <p style={{ color: '#cbd5e1', fontSize: '0.84rem', margin: 0, lineHeight: 1.6 }}>{r.aiAnalysis.summary}</p>
                       </div>
-
-                      {/* Stats bar */}
                       {r.aiAnalysis.stats && (
                         <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
-                          {[['normal','Normal','#06d6a0'], ['borderline','Borderline','#fbbf24'], ['abnormal','Abnormal','#f97316'], ['critical','Critical','#ef4444']].map(([k,l,c]) => (
+                          {[['normal','Normal','#06d6a0'],['borderline','Borderline','#fbbf24'],['abnormal','Abnormal','#f97316'],['critical','Critical','#ef4444']].map(([k,l,c]) => (
                             <div key={k} style={{ padding: '8px 14px', borderRadius: 8, background: `${c}0d`, border: `1px solid ${c}20`, textAlign: 'center', minWidth: 80 }}>
                               <div style={{ fontSize: '1.2rem', fontWeight: 700, color: c }}>{r.aiAnalysis.stats[k]}</div>
                               <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>{l}</div>
@@ -178,30 +206,22 @@ function MyReports() {
                           ))}
                         </div>
                       )}
-
-                      {/* Test Results Table */}
                       {r.aiAnalysis.details?.length > 0 && (
                         <div style={{ marginBottom: 18 }}>
                           <h4 style={{ color: '#e2e8f0', fontSize: '0.88rem', marginBottom: 10 }}>📋 Detailed Results</h4>
-                          <div className="table-container">
-                            <table style={{ fontSize: '0.82rem' }}>
-                              <thead><tr><th>Test</th><th>Value</th><th>Normal Range</th><th>Status</th></tr></thead>
-                              <tbody>
-                                {r.aiAnalysis.details.map((d, i) => (
-                                  <tr key={i}>
-                                    <td style={{ fontWeight: 500 }}>{d.test}</td>
-                                    <td style={{ fontWeight: 600, color: statusColor[d.status] || '#e2e8f0' }}>{d.value} {d.unit}</td>
-                                    <td style={{ color: '#94a3b8' }}>{d.normalRange} {d.unit}</td>
-                                    <td><span style={{ padding: '2px 8px', borderRadius: 12, fontSize: '0.7rem', fontWeight: 600, background: `${statusColor[d.status]}18`, color: statusColor[d.status] }}>{d.status === 'normal' ? '✓ Normal' : `${d.direction === 'high' ? '↑' : '↓'} ${d.status}`}</span></td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
+                          <div className="table-container"><table style={{ fontSize: '0.82rem' }}>
+                            <thead><tr><th>Test</th><th>Value</th><th>Normal Range</th><th>Status</th></tr></thead>
+                            <tbody>{r.aiAnalysis.details.map((d, i) => (
+                              <tr key={i}>
+                                <td style={{ fontWeight: 500 }}>{d.test}</td>
+                                <td style={{ fontWeight: 600, color: statusColor[d.status] || '#e2e8f0' }}>{d.value} {d.unit}</td>
+                                <td style={{ color: '#94a3b8' }}>{d.normalRange} {d.unit}</td>
+                                <td><span style={{ padding: '2px 8px', borderRadius: 12, fontSize: '0.7rem', fontWeight: 600, background: `${statusColor[d.status]}18`, color: statusColor[d.status] }}>{d.status === 'normal' ? '✓ Normal' : `${d.direction === 'high' ? '↑' : '↓'} ${d.status}`}</span></td>
+                              </tr>
+                            ))}</tbody>
+                          </table></div>
                         </div>
                       )}
-
-                      {/* Findings */}
                       {r.aiAnalysis.findings?.length > 0 && (
                         <div style={{ marginBottom: 18 }}>
                           <h4 style={{ color: '#e2e8f0', fontSize: '0.88rem', marginBottom: 10 }}>🔍 Key Findings</h4>
@@ -213,8 +233,6 @@ function MyReports() {
                           </div>
                         </div>
                       )}
-
-                      {/* Recommendations */}
                       {r.aiAnalysis.recommendations?.length > 0 && (
                         <div style={{ marginBottom: 18 }}>
                           <h4 style={{ color: '#e2e8f0', fontSize: '0.88rem', marginBottom: 10 }}>💡 Recommendations</h4>
@@ -228,8 +246,6 @@ function MyReports() {
                           </div>
                         </div>
                       )}
-
-                      {/* Wellness Tips */}
                       {r.aiAnalysis.wellnessTips?.length > 0 && (
                         <div>
                           <h4 style={{ color: '#e2e8f0', fontSize: '0.88rem', marginBottom: 10 }}>🌿 General Wellness Tips</h4>
@@ -259,6 +275,15 @@ function MyReports() {
             </div>
             <form onSubmit={handleUpload}>
               <div className="modal-body">
+                {/* Patient selector for doctor/admin */}
+                {!isPatient && patients.length > 1 && (
+                  <div className="form-group">
+                    <label>Upload for Patient</label>
+                    <select className="form-control" value={selectedPatientId} onChange={e => setSelectedPatientId(e.target.value)}>
+                      {patients.map(p => <option key={p.patientId} value={p.patientId}>{p.name} ({p.patientId})</option>)}
+                    </select>
+                  </div>
+                )}
                 <div className="form-grid">
                   <div className="form-group"><label>Report Title *</label><input className="form-control" value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Blood Test - May 2026" required /></div>
                   <div className="form-group">
@@ -271,7 +296,6 @@ function MyReports() {
                 <div className="form-group"><label>Description</label><textarea className="form-control" rows="2" value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Optional notes..." style={{ resize: 'vertical' }}></textarea></div>
                 <div className="form-group"><label>Select File * (PDF, JPG, PNG, DOC — max 10MB)</label><input type="file" className="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={e => setFile(e.target.files[0])} required style={{ paddingTop: 10 }} /></div>
 
-                {/* Lab Values Section */}
                 {form.type === 'lab_report' && (
                   <div style={{ marginTop: 8 }}>
                     <button type="button" onClick={() => setShowLabFields(!showLabFields)} style={{
@@ -280,8 +304,7 @@ function MyReports() {
                     }}>
                       <FiActivity /> Enter Lab Values for AI Analysis {showLabFields ? <FiChevronUp style={{ marginLeft: 'auto' }} /> : <FiChevronDown style={{ marginLeft: 'auto' }} />}
                     </button>
-                    <small style={{ color: '#64748b', fontSize: '0.72rem', marginTop: 4, display: 'block' }}>Enter your test values to receive AI-powered health analysis with findings and recommendations. Fill only the values available in your report.</small>
-
+                    <small style={{ color: '#64748b', fontSize: '0.72rem', marginTop: 4, display: 'block' }}>Fill only the values available in your report.</small>
                     {showLabFields && (
                       <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 16 }}>
                         {LAB_FIELDS.map(section => (

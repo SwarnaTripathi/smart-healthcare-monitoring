@@ -22,6 +22,7 @@ function Layout({ children }) {
   const doctorNav = [
     { to: '/dashboard', icon: <FiGrid />, label: 'Dashboard' },
     { to: '/patients', icon: <FiUsers />, label: 'Patients' },
+    { to: '/my-reports', icon: <FiFileText />, label: 'Patient Reports' },
     { to: '/history', icon: <FiClock />, label: 'Health History' },
     { to: '/alerts', icon: <FiBell />, label: 'Alerts' },
   ];
@@ -30,6 +31,7 @@ function Layout({ children }) {
     { to: '/dashboard', icon: <FiGrid />, label: 'System Overview' },
     { to: '/user-management', icon: <FiUsers />, label: 'User Management' },
     { to: '/patients', icon: <FiShield />, label: 'All Patients' },
+    { to: '/my-reports', icon: <FiFileText />, label: 'Patient Reports' },
     { to: '/device-management', icon: <FiCpu />, label: 'Devices' },
     { to: '/alerts', icon: <FiBell />, label: 'All Alerts' },
     { to: '/audit-logs', icon: <FiList />, label: 'Audit Logs' },
