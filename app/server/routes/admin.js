@@ -46,9 +46,48 @@ router.get('/users', auth, authorize('admin'), async (req, res) => {
   }
 });
 
+// POST /api/admin/users - Create a new user (doctor/admin accounts)
+router.post('/users', auth, authorize('admin'), async (req, res) => {
+  try {
+    const { name, email, password, role, specialization, phone } = req.body;
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ error: 'Name, email, password, and role are required' });
+    }
+    const validRoles = ['patient', 'doctor', 'admin'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(400).json({ error: 'Email already registered' });
+
+    const user = new User({ name, email, password, role, specialization: specialization || '', phone: phone || '' });
+    await user.save();
+
+    await AuditLog.create({
+      action: `New ${role} account created: ${name} (${email})`,
+      category: 'admin',
+      userId: req.user._id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      severity: 'info'
+    });
+
+    res.status(201).json({ message: `${role} account created successfully`, user: { ...user.toJSON(), password: undefined } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // PUT /api/admin/users/:id - Update user (role, active status)
 router.put('/users/:id', auth, authorize('admin'), async (req, res) => {
   try {
+    // Prevent admin from deactivating/demoting themselves
+    if (req.params.id === req.user._id.toString()) {
+      const { role, isActive } = req.body;
+      if (isActive === false) return res.status(400).json({ error: 'You cannot deactivate your own account' });
+      if (role && role !== 'admin') return res.status(400).json({ error: 'You cannot remove your own admin role' });
+    }
+
     const { role, isActive } = req.body;
     const update = {};
     if (role) update.role = role;

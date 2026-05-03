@@ -16,10 +16,10 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Validate role
-    const validRoles = ['patient', 'doctor', 'admin'];
-    if (role && !validRoles.includes(role)) {
-      return res.status(400).json({ error: 'Invalid role specified' });
+    // Self-registration is restricted to patient role only
+    // Doctor and admin accounts must be created by an admin
+    if (role && role !== 'patient') {
+      return res.status(400).json({ error: 'Only patient accounts can be self-registered. Contact admin for doctor/admin accounts.' });
     }
 
     const user = new User({

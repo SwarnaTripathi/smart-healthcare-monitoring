@@ -7,7 +7,7 @@ function Login() {
   const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'patient', phone: '', specialization: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -19,8 +19,8 @@ function Login() {
         await login(form.email, form.password);
         toast.success('Welcome back!');
       } else {
-        await register(form);
-        toast.success('Account created successfully!');
+        await register({ ...form, role: 'patient' });
+        toast.success('Account created! A doctor will add you to their patient list shortly.');
       }
     } catch (err) {
       toast.error(err.response?.data?.error || 'Something went wrong');
@@ -45,20 +45,6 @@ function Login() {
                 <label><FiUser style={{ marginRight: 6 }} />Full Name</label>
                 <input className="form-control" name="name" placeholder="John Doe" value={form.name} onChange={handleChange} required />
               </div>
-              <div className="form-group">
-                <label>Role</label>
-                <select className="form-control" name="role" value={form.role} onChange={handleChange}>
-                  <option value="patient">Patient</option>
-                  <option value="doctor">Doctor</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              {form.role === 'doctor' && (
-                <div className="form-group">
-                  <label>Specialization</label>
-                  <input className="form-control" name="specialization" placeholder="Cardiology" value={form.specialization} onChange={handleChange} />
-                </div>
-              )}
               <div className="form-group">
                 <label><FiPhone style={{ marginRight: 6 }} />Phone</label>
                 <input className="form-control" name="phone" placeholder="+91 9876543210" value={form.phone} onChange={handleChange} />

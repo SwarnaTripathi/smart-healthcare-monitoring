@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import { FiSearch, FiTrash2, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FiSearch, FiTrash2, FiToggleLeft, FiToggleRight, FiUserPlus, FiX } from 'react-icons/fi';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState({ name: '', email: '', password: '', role: 'doctor', specialization: '', phone: '' });
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -23,7 +26,7 @@ function UserManagement() {
       await api.put(`/admin/users/${userId}`, { isActive: !currentStatus });
       toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'}`);
       fetchUsers();
-    } catch (e) { toast.error('Failed to update'); }
+    } catch (e) { toast.error(e.response?.data?.error || 'Failed to update'); }
   };
 
   const changeRole = async (userId, newRole) => {
@@ -31,7 +34,7 @@ function UserManagement() {
       await api.put(`/admin/users/${userId}`, { role: newRole });
       toast.success('Role updated');
       fetchUsers();
-    } catch (e) { toast.error('Failed to update role'); }
+    } catch (e) { toast.error(e.response?.data?.error || 'Failed to update role'); }
   };
 
   const deleteUser = async (userId, name) => {
@@ -43,16 +46,24 @@ function UserManagement() {
     } catch (e) { toast.error('Failed to delete'); }
   };
 
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    setAdding(true);
+    try {
+      await api.post('/admin/users', addForm);
+      toast.success(`${addForm.role.charAt(0).toUpperCase() + addForm.role.slice(1)} account created!`);
+      setShowAddModal(false);
+      setAddForm({ name: '', email: '', password: '', role: 'doctor', specialization: '', phone: '' });
+      fetchUsers();
+    } catch (e) { toast.error(e.response?.data?.error || 'Failed to create user'); }
+    finally { setAdding(false); }
+  };
+
   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase()) ||
     u.role.includes(search.toLowerCase())
   );
-
-  const roleBadge = (role) => {
-    const classes = { doctor: 'badge-doctor', admin: 'badge-admin', patient: 'badge-patient' };
-    return <span className={`badge ${classes[role] || 'badge-active'}`}>{role}</span>;
-  };
 
   return (
     <>
@@ -61,7 +72,12 @@ function UserManagement() {
           <h1>User Management</h1>
           <p>Manage all registered users, roles, and access</p>
         </div>
-        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{users.length} total users</span>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{users.length} total users</span>
+          <button className="btn btn-primary" style={{ width: 'auto' }} onClick={() => setShowAddModal(true)}>
+            <FiUserPlus /> Add Doctor / Admin
+          </button>
+        </div>
       </div>
 
       <div style={{ marginBottom: 20, position: 'relative', maxWidth: 400 }}>
@@ -107,6 +123,58 @@ function UserManagement() {
           </div>
         )}
       </div>
+
+      {/* Add Doctor/Admin Modal */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
+            <div className="modal-header">
+              <h3>Create New Account</h3>
+              <button className="btn-icon" onClick={() => setShowAddModal(false)}><FiX /></button>
+            </div>
+            <form onSubmit={handleAddUser}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Full Name *</label>
+                  <input className="form-control" value={addForm.name} onChange={e => setAddForm({...addForm, name: e.target.value})} placeholder="Dr. John Doe" required />
+                </div>
+                <div className="form-group">
+                  <label>Email *</label>
+                  <input className="form-control" type="email" value={addForm.email} onChange={e => setAddForm({...addForm, email: e.target.value})} placeholder="doctor@healthguard.com" required />
+                </div>
+                <div className="form-group">
+                  <label>Password *</label>
+                  <input className="form-control" type="password" value={addForm.password} onChange={e => setAddForm({...addForm, password: e.target.value})} placeholder="Min 6 characters" required minLength={6} />
+                </div>
+                <div className="form-group">
+                  <label>Role *</label>
+                  <select className="form-control" value={addForm.role} onChange={e => setAddForm({...addForm, role: e.target.value})}>
+                    <option value="doctor">Doctor</option>
+                    <option value="admin">Admin</option>
+                    <option value="patient">Patient</option>
+                  </select>
+                </div>
+                {addForm.role === 'doctor' && (
+                  <div className="form-group">
+                    <label>Specialization</label>
+                    <input className="form-control" value={addForm.specialization} onChange={e => setAddForm({...addForm, specialization: e.target.value})} placeholder="e.g. Cardiology, General Physician" />
+                  </div>
+                )}
+                <div className="form-group">
+                  <label>Phone</label>
+                  <input className="form-control" value={addForm.phone} onChange={e => setAddForm({...addForm, phone: e.target.value})} placeholder="+91 9876543210" />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ width: 'auto' }} disabled={adding}>
+                  {adding ? 'Creating...' : `Create ${addForm.role.charAt(0).toUpperCase() + addForm.role.slice(1)}`}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }

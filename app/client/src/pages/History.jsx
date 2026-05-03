@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { FiSearch, FiCalendar } from 'react-icons/fi';
@@ -7,6 +8,7 @@ import { FiSearch, FiCalendar } from 'react-icons/fi';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 function History() {
+  const { user } = useAuth();
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState('');
   const [healthData, setHealthData] = useState([]);
@@ -43,29 +45,45 @@ function History() {
   };
 
   const labels = healthData.map(d => new Date(d.timestamp).toLocaleTimeString());
+  const isPatient = user?.role === 'patient';
 
   return (
     <>
       <div className="page-header">
         <div>
           <h1>Health History</h1>
-          <p>View historical health data for patients</p>
+          <p>{isPatient ? 'View your historical health data' : 'View historical health data for patients'}</p>
         </div>
       </div>
 
-      {/* Patient selector */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ minWidth: 250 }}>
-          <select className="form-control" value={selectedPatient} onChange={e => setSelectedPatient(e.target.value)}>
-            <option value="">Select Patient</option>
-            {patients.map(p => <option key={p._id} value={p.patientId}>{p.patientId} — {p.name}</option>)}
-          </select>
+      {/* Patient selector — only for doctor/admin */}
+      {!isPatient && (
+        <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ minWidth: 250 }}>
+            <select className="form-control" value={selectedPatient} onChange={e => setSelectedPatient(e.target.value)}>
+              <option value="">Select Patient</option>
+              {patients.map(p => <option key={p._id} value={p.patientId}>{p.patientId} — {p.name}</option>)}
+            </select>
+          </div>
+          <button className="btn btn-secondary btn-sm" onClick={fetchHistory} disabled={!selectedPatient}>
+            <FiCalendar /> Refresh
+          </button>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{healthData.length} records loaded</span>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={fetchHistory} disabled={!selectedPatient}>
-          <FiCalendar /> Refresh
-        </button>
-        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{healthData.length} records loaded</span>
-      </div>
+      )}
+
+      {/* Patient sees a simple info bar instead */}
+      {isPatient && patients.length > 0 && (
+        <div style={{ display: 'flex', gap: 16, marginBottom: 24, alignItems: 'center' }}>
+          <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+            Showing data for: <strong style={{ color: '#06d6a0' }}>{patients[0]?.name}</strong> ({patients[0]?.patientId})
+          </span>
+          <button className="btn btn-secondary btn-sm" onClick={fetchHistory}>
+            <FiCalendar /> Refresh
+          </button>
+          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{healthData.length} records loaded</span>
+        </div>
+      )}
 
       {loading ? (
         <div className="loading-container"><div className="spinner"></div></div>
@@ -73,7 +91,7 @@ function History() {
         <div className="card"><div className="empty-state">
           <div className="empty-icon">📋</div>
           <h3>No Health Data</h3>
-          <p>Select a patient and run the IoT simulator to generate data</p>
+          <p>{isPatient ? 'No sensor data has been recorded yet for your profile' : 'Select a patient and run the IoT simulator to generate data'}</p>
         </div></div>
       ) : (
         <>

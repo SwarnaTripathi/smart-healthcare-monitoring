@@ -44,21 +44,22 @@ d:\smart health care\app\
 │   ├── config/db.js                 # MongoDB connection
 │   ├── models/
 │   │   ├── User.js                  # User schema (auth + roles)
-│   │   ├── Patient.js               # Patient profiles
+│   │   ├── Patient.js               # Patient profiles (linked to User)
 │   │   ├── HealthData.js            # IoT sensor readings
 │   │   ├── Alert.js                 # Health alerts
 │   │   ├── Report.js                # Medical report uploads
 │   │   └── AuditLog.js              # System audit trail
 │   ├── routes/
-│   │   ├── auth.js                  # Register, Login, Profile
-│   │   ├── patients.js              # Patient CRUD
+│   │   ├── auth.js                  # Register (patient-only), Login
+│   │   ├── patients.js              # Patient CRUD + role-based filtering
 │   │   ├── healthData.js            # IoT data ingestion + history
-│   │   ├── alerts.js                # Alert management
+│   │   ├── alerts.js                # Alert management (role-filtered)
 │   │   ├── reports.js               # File upload/download
 │   │   ├── admin.js                 # Admin management APIs
 │   │   └── chatbot.js               # AI health chatbot
 │   ├── middleware/auth.js           # JWT verification + RBAC
 │   ├── utils/alertChecker.js        # Threshold-based alerting
+│   ├── seed_data.js                 # Synthetic data seeder script
 │   ├── server.js                    # Main entry point
 │   └── .env                         # Environment variables
 ├── client/                          # REACT FRONTEND
@@ -68,13 +69,13 @@ d:\smart health care\app\
 │   │   │   ├── Layout.jsx           # Sidebar + role-based nav
 │   │   │   └── ChatBot.jsx          # AI chatbot widget
 │   │   ├── pages/
-│   │   │   ├── Login.jsx            # Auth page
+│   │   │   ├── Login.jsx            # Auth page (patient-only register)
 │   │   │   ├── Dashboard.jsx        # Doctor dashboard
-│   │   │   ├── PatientDashboard.jsx # Patient dashboard
+│   │   │   ├── PatientDashboard.jsx # Patient dashboard (own data only)
 │   │   │   ├── AdminDashboard.jsx   # Admin system overview
-│   │   │   ├── Patients.jsx         # Patient management
-│   │   │   ├── History.jsx          # Health data history
-│   │   │   ├── Alerts.jsx           # Alert management
+│   │   │   ├── Patients.jsx         # Patient management (2-step add)
+│   │   │   ├── History.jsx          # Health data history (role-scoped)
+│   │   │   ├── Alerts.jsx           # Alert management (role-filtered)
 │   │   │   ├── MyReports.jsx        # Patient report uploads
 │   │   │   ├── MyProfile.jsx        # Patient profile
 │   │   │   ├── UserManagement.jsx   # Admin user control
@@ -115,8 +116,9 @@ const connectDB = async () => {
 - **Why bcrypt?** It uses salted hashing (cost factor 10), making rainbow table attacks impossible
 
 ### 3.3 PATIENT MODEL (models/Patient.js)
-**What it does:** Stores patient medical profiles with auto-generated IDs.
-- **Auto-ID:** Uses a `pre-save` hook that counts existing documents and generates `PT-00001`, `PT-00002`, etc.
+**What it does:** Stores patient medical profiles with auto-generated IDs and user account linking.
+- **Auto-ID:** Uses a `pre-validate` hook that counts existing documents and generates `PT-00001`, `PT-00002`, etc.
+- **User Link:** `user` field (ObjectId ref to User) links a Patient record to a login account — enables data isolation so patients see only their own data
 - **References:** `assignedDoctor` uses `mongoose.Schema.Types.ObjectId` referencing the User model (relational linking in NoSQL)
 
 ### 3.4 HEALTH DATA MODEL (models/HealthData.js)
@@ -203,19 +205,106 @@ function RoleDashboard() {
 - `ProtectedRoute` component checks auth AND role permissions
 - Routes like `/user-management` are restricted to admin only
 
-### 3.13 AI CHATBOT (routes/chatbot.js + ChatBot.jsx)
+### 3.13 ROLE-BASED DATA ISOLATION (routes/patients.js + alerts.js)
+**What it does:** Ensures each role only sees the data they are authorized to view.
+
+**Backend Filtering Logic:**
+```
+Patient → Only their own record (matched by Patient.user field → User._id)
+Doctor  → Only patients assigned to them (Patient.assignedDoctor → User._id)
+Admin   → All patients, full system oversight
+```
+
+**Key Implementation Details:**
+- `_getPatientFilter(user)` helper function: First checks explicit `Patient.user` link. If not found, falls back to case-insensitive name matching and auto-links for future queries.
+- `GET /api/patients` applies role-based query filters before returning results
+- `GET /api/patients/:id` returns 403 Forbidden if a patient tries to view another patient's record
+- `GET /api/alerts` filters alerts by the patient's own `patientId` when role is patient
+- Stats endpoints (`/stats/summary`) are also scoped per role
+
+**Patient ↔ User Linking Strategy:**
+1. **Explicit link** — Admin/doctor sets `linkedUserId` when creating a patient record via the Add Patient form
+2. **Auto-link by name** — If no explicit link exists, the system matches `User.name` ↔ `Patient.name` (case-insensitive) and auto-saves the link
+3. **No match** — Patient sees "No Patient Profile Found" message until a doctor adds them
+
+### 3.14 PATIENT REGISTRATION & ASSIGNMENT WORKFLOW
+**What it does:** Implements a secure workflow where patients self-register and doctors add them to their patient list.
+
+**Flow:**
+```
+1. Patient registers on website (patient-role only, no role selector)
+        ↓
+2. User account created — appears in "unlinked users" pool
+        ↓
+3. Doctor/Admin clicks "Add Patient" → sees newly registered patients as cards
+        ↓
+4. Doctor selects a patient → fills in medical details (age, blood group, etc.)
+        ↓
+5. Patient record created, linked to user account, assigned to doctor
+        ↓
+6. Patient can now see their own data when they log in
+```
+
+**Key Implementation Details:**
+- `GET /api/patients/unlinked-users` — Returns patient-role users who don't yet have a Patient record
+- `POST /api/auth/register` — Restricted to patient role only (doctor/admin accounts created by admin)
+- Frontend 2-step modal: Step 1 shows selectable user cards, Step 2 collects medical details
+- `Login.jsx` — Removed role selector; registration is patient-only with success message directing them to wait for doctor assignment
+
+### 3.15 AI REPORT ANALYZER (utils/reportAnalyzer.js + MyReports.jsx)
+**What it does:** Analyzes uploaded lab report values against medical reference ranges and provides AI-powered health insights.
+
+**How it works:**
+```
+1. Patient uploads a lab report file + enters lab values (hemoglobin, glucose, etc.)
+        ↓
+2. Backend parses values and runs analyzeReport() against 30+ medical reference ranges
+        ↓
+3. Each value is classified: Normal / Borderline / Abnormal / Critical
+        ↓
+4. AI generates: Findings, Recommendations, Overall Assessment, Wellness Tips
+        ↓
+5. Analysis stored in MongoDB alongside the report for future reference
+```
+
+**Key Features:**
+- **30+ lab tests supported:** CBC (hemoglobin, WBC, RBC, platelets), metabolic panel (glucose, HbA1c, creatinine), lipid profile, liver function, thyroid, vitamins, electrolytes, inflammation markers
+- **Gender-aware analysis:** Reference ranges adjust for male/female patients (e.g., hemoglobin: male 13.5-17.5, female 12.0-15.5)
+- **Severity classification:** Uses percentage deviation from normal to classify borderline (<15%), abnormal (15-30%), and critical (>30%)
+- **Personalized recommendations:** Each abnormal finding triggers specific medical advice from a curated database
+- **Re-analysis endpoint:** `POST /api/reports/:id/analyze` allows adding lab values to existing reports
+- **Frontend display:** Expandable analysis panel with color-coded results table, findings, recommendations, and wellness tips
+
+### 3.16 ADMIN USER MANAGEMENT (routes/admin.js + UserManagement.jsx)
+**What it does:** Allows administrators to create doctor and admin accounts.
+- **Backend:** `POST /api/admin/users` creates new user accounts with any role
+- **Frontend:** "Add Doctor/Admin" button in User Management page with form modal
+- **Specialization field:** Shown conditionally when creating doctor accounts
+- **Audit logging:** Every account creation is logged for accountability
+- **Security:** Only admins can access this endpoint (enforced by `authorize('admin')` middleware)
+
+### 3.17 AI CHATBOT (routes/chatbot.js + ChatBot.jsx)
 **What it does:** Healthcare assistant with intent detection.
 - **Backend:** Regex-based NLP to detect 30+ intents (greetings, vitals query, emergency, first aid, navigation help, health topics)
 - **Knowledge Base:** Structured health data for HR, SpO2, temperature, BP, diabetes, mental health, etc.
 - **Personalized:** Queries actual patient data from MongoDB for "my vitals" requests
 - **Frontend:** Floating widget with message bubbles, typing animation, quick action buttons
 
-### 3.14 IoT SIMULATOR (simulator/iot_simulator.py)
+### 3.18 IoT SIMULATOR (simulator/iot_simulator.py)
 **What it does:** Simulates ESP32 + MAX30102 + DS18B20 sensor readings.
 - Generates realistic data using sinusoidal variation + Gaussian noise
 - 8% chance of anomaly per reading (simulates real-world spikes)
 - Sends HTTP POST to `/api/health-data` every 3 seconds
 - Accepts patient ID as command-line argument
+
+### 3.19 SYNTHETIC DATA SEEDER (seed_data.js)
+**What it does:** Generates a complete demo dataset for testing and demonstration.
+- **10 Users:** 1 admin, 2 doctors, 5 linked patients, 2 unlinked patients (for Add Patient demo)
+- **5 Patient Records:** Linked to user accounts, round-robin assigned to doctors
+- **2,520 Health Readings:** 7 days × 72 readings/day × 5 patients with realistic sinusoidal variation + anomalies
+- **~170 Alerts:** Auto-generated from abnormal readings, 60% pre-acknowledged by doctors
+- **Per-patient health profiles:** Each patient has unique base vitals and anomaly rates reflecting their medical history
+- **Usage:** `node seed_data.js` — clears and regenerates all data
 
 ---
 
@@ -231,6 +320,9 @@ function RoleDashboard() {
 | Multer for uploads | Battle-tested; middleware pattern fits Express; disk storage for simplicity |
 | Regex NLP over API | No API key needed; works offline; demonstrates custom NLP for project |
 | Dark theme | Medical dashboards traditionally use dark themes (reduced eye strain during monitoring) |
+| Patient-only registration | Prevents privilege escalation; doctor/admin accounts require admin creation |
+| 2-step Add Patient flow | Separates account creation from medical profile; doctors fill clinical details |
+| Auto-linking by name | Fallback for patients created before explicit linking was implemented |
 
 ---
 
@@ -266,7 +358,19 @@ function RoleDashboard() {
 
 ### Problem 8: Password Security
 **Issue:** Storing plain-text passwords is a critical vulnerability.
-**Solution:** bcrypt with salt rounds of 10 (adaptive hashing). Password field excluded from queries using `select('-password')`.
+**Solution:** bcrypt with salt rounds of 12 (adaptive hashing). Password field excluded from queries using `select('-password')`.
+
+### Problem 9: Patient Data Isolation
+**Issue:** Patient users could see all other patients' data because the `GET /api/patients` endpoint had no role-based filtering.
+**Solution:** Added role-based query filtering in the backend. Patient users get `{ user: userId }` filter, doctors get `{ assignedDoctor: userId }` filter, admins get no filter. Same pattern applied to alerts and stats endpoints.
+
+### Problem 10: Patient-User Account Linking
+**Issue:** The Patient model had a `user` field but it was never populated, so there was no way to match a login account to a patient record.
+**Solution:** Implemented a 3-tier linking strategy: (1) Explicit linking via `linkedUserId` when doctor creates patient, (2) Auto-linking by name match as fallback, (3) Empty state with helpful message if no match found. The auto-link saves itself for future queries.
+
+### Problem 11: Privilege Escalation via Self-Registration
+**Issue:** The registration form allowed users to self-assign any role including `doctor` and `admin`.
+**Solution:** Restricted `POST /api/auth/register` to `patient` role only. Doctor and admin accounts must be created by an existing admin through the User Management panel.
 
 ---
 
@@ -286,6 +390,11 @@ function RoleDashboard() {
 
 ### Q5: How does role-based access control (RBAC) work?
 **A:** Each user has a `role` field (patient/doctor/admin). The `authorize()` middleware checks if the requesting user's role is in the allowed list. The frontend also conditionally renders UI elements based on role — different sidebar menus, different dashboards, and feature visibility controlled per role.
+
+Beyond route-level access, we also implement **data-level isolation**: patients can only query their own records, doctors only see their assigned patients, and admins have full access. This is enforced in the backend query layer using role-based filters, not just frontend visibility.
+
+### Q5b: How does the patient registration and assignment workflow work?
+**A:** Patients self-register via the login page (restricted to patient role only). This creates a User account but NOT a Patient medical record. The patient then appears in an "unlinked users" pool visible to doctors and admins. When a doctor clicks "Add Patient", they see all newly registered patients as selectable cards. They select a patient, fill in clinical details (age, blood group, medical history), and submit. This creates a Patient record linked to the user account and assigned to that doctor. The patient can then log in and see their own health data, reports, and alerts.
 
 ### Q6: How are health alerts generated?
 **A:** The `alertChecker.js` utility evaluates each incoming reading against medical thresholds. For example, heart rate > 120 bpm triggers a CRITICAL alert. The alert is saved to MongoDB and broadcast via Socket.IO. Doctors/admins can acknowledge alerts through the dashboard.
@@ -312,9 +421,12 @@ function RoleDashboard() {
 **A:** A hybrid deep learning model where CNN extracts spatial features from network traffic patterns and LSTM captures temporal sequences. The combined model detects intrusion attempts on the healthcare IoT network. Training data would include normal traffic and simulated attack patterns (DDoS, MITM, injection). This provides real-time anomaly detection for system security.
 
 ### Q14: What testing strategies did you use?
-**A:** (1) Manual API testing with direct HTTP requests, (2) Browser-based UI testing with automated agent verification, (3) End-to-end flow testing (register → login → add patient → run simulator → verify dashboard), (4) Role-based access verification for all three user types.
+**A:** (1) Manual API testing with direct HTTP requests, (2) Browser-based UI testing with automated agent verification, (3) End-to-end flow testing (register → login → add patient → run simulator → verify dashboard), (4) Role-based access verification for all three user types, (5) Data isolation testing — logging in as different patients and verifying each sees only their own data.
 
-### Q15: What would you improve if you had more time?
+### Q15: How do you handle data isolation for multi-doctor scenarios?
+**A:** Each Patient record has an `assignedDoctor` field referencing a User. When a doctor queries `/api/patients`, the backend automatically filters with `{ assignedDoctor: req.user._id }`. This means Doctor A never sees Doctor B's patients. Admins bypass all filters and see the entire system. The same isolation applies to alerts — each patient's alerts are filtered by their `patientId`, and each doctor only sees alerts for their assigned patients.
+
+### Q16: What would you improve if you had more time?
 **A:** (1) Add WebSocket authentication (currently open), (2) Implement pagination for large datasets, (3) Add data export (CSV/PDF reports), (4) Email/SMS notifications for critical alerts, (5) Progressive Web App (PWA) for mobile, (6) Automated testing with Jest/Cypress, (7) Docker containerization, (8) HTTPS with SSL certificates.
 
 ---
@@ -363,18 +475,31 @@ cd "d:\smart health care\app\client"
 npm install
 npm run dev
 
+# (Optional) Seed demo data with synthetic patients & health readings
+cd "d:\smart health care\app\server"
+node seed_data.js
+
 # Terminal 3: Start IoT Simulator
 cd "d:\smart health care\app"
 pip install requests
 python simulator/iot_simulator.py PT-00001
 ```
 
-### Login Credentials
+### Login Credentials (after running seed_data.js)
 | Role | Email | Password |
 |------|-------|----------|
-| Doctor | sarah@hospital.com | doctor123 |
-| Patient | rahul@patient.com | patient123 |
-| Admin | admin@hospital.com | admin123 |
+| Admin | admin@healthguard.com | admin123 |
+| Doctor | priya@healthguard.com | doctor123 |
+| Doctor | rahul@healthguard.com | doctor123 |
+| Patient | amit@patient.com | patient123 |
+| Patient | sneha@patient.com | patient123 |
+| Patient | ravi@patient.com | patient123 |
+| Patient | anjali@patient.com | patient123 |
+| Patient | vikram@patient.com | patient123 |
+| 🆕 Unlinked | neha@patient.com | patient123 |
+| 🆕 Unlinked | arjun@patient.com | patient123 |
+
+> **Note:** "Unlinked" patients have registered accounts but no Patient record yet. Log in as a doctor and click "Add Patient" to assign them.
 
 ### URLs
 - Frontend: http://localhost:5173
@@ -387,25 +512,50 @@ python simulator/iot_simulator.py PT-00001
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | /api/auth/register | No | Create account |
+| POST | /api/auth/register | No | Create patient account (patient role only) |
 | POST | /api/auth/login | No | Login + get JWT |
 | GET | /api/auth/me | Yes | Get current user |
-| GET | /api/patients | Yes | List patients |
-| POST | /api/patients | Doctor/Admin | Add patient |
+| GET | /api/patients/unlinked-users | Doctor/Admin | List newly registered patients not yet assigned |
+| GET | /api/patients/stats/summary | Yes | Patient stats (role-scoped) |
+| GET | /api/patients | Yes | List patients (role-filtered: own/assigned/all) |
+| GET | /api/patients/:id | Yes | Get single patient (role-restricted) |
+| POST | /api/patients | Doctor/Admin | Add patient (with linkedUserId) |
 | PUT | /api/patients/:id | Doctor/Admin | Update patient |
 | DELETE | /api/patients/:id | Admin | Delete patient |
 | POST | /api/health-data | No | Store IoT reading |
 | GET | /api/health-data/:patientId | Yes | Get history |
-| GET | /api/alerts | Yes | List alerts |
+| GET | /api/alerts/stats/summary | Yes | Alert stats (role-scoped) |
+| GET | /api/alerts | Yes | List alerts (role-filtered) |
 | PUT | /api/alerts/:id/acknowledge | Doctor/Admin | Ack alert |
-| POST | /api/reports | Yes | Upload report |
-| GET | /api/reports/:patientId | Yes | Get reports |
+| POST | /api/reports | Yes | Upload report + lab values + AI analysis |
+| POST | /api/reports/:id/analyze | Yes | Re-analyze existing report with new lab values |
+| GET | /api/reports/:patientId | Yes | Get reports with AI analysis |
 | GET | /api/admin/stats | Admin | System stats |
+| POST | /api/admin/users | Admin | Create doctor/admin accounts |
 | GET | /api/admin/users | Admin | All users |
 | PUT | /api/admin/users/:id | Admin | Update user role |
 | POST | /api/chatbot | Yes | Chat message |
 
 ---
 
+## 10. ROLE-BASED DATA ACCESS MATRIX
+
+| Data | Patient | Doctor | Admin |
+|------|---------|--------|-------|
+| Own patient record | ✅ Own only | ✅ Assigned only | ✅ All |
+| Health data history | ✅ Own only | ✅ Assigned patients | ✅ All |
+| Alerts | ✅ Own only | ✅ All (can acknowledge) | ✅ All (can acknowledge + delete) |
+| Reports + AI Analysis | ✅ Own upload/view | ✅ Upload for assigned | ✅ All |
+| User management | ❌ | ❌ | ✅ Full CRUD + create accounts |
+| Device management | ❌ | ❌ | ✅ View all |
+| Audit logs | ❌ | ❌ | ✅ View all |
+| Add patient | ❌ | ✅ From unlinked pool | ✅ From unlinked pool |
+| Add doctor/admin | ❌ | ❌ | ✅ Create any role |
+| Self-register | ✅ Patient role only | ❌ Created by admin | ❌ Created by admin |
+| Chatbot | ✅ | ✅ | ✅ |
+
+---
+
 *Document prepared for Final Year Project Viva — Phase 1*
 *Smart Healthcare Monitoring System using IoT, Blockchain, and AI*
+*Last Updated: May 2026*
