@@ -277,7 +277,7 @@ python app/simulator/iot_simulator.py PT-00001
 
 ## 📝 License
 
-This project is part of a Final Year academic project at Sagar Institute of Science & Technology, Bhopal.
+This project is part of a Final Year academic project at Heritage Institute of Technology, Kolkata.
 
 ---
 
