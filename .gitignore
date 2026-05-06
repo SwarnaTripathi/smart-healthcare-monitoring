@@ -5,8 +5,9 @@ package-lock.json
 # Environment
 .env
 .env.local
+.env.production
 
-# Uploads
+# Uploads (user-generated content)
 app/server/uploads/
 
 # Build output
@@ -15,6 +16,8 @@ app/client/dist/
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
@@ -23,12 +26,26 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+venv/
+.venv/
 
-# Temp files
+# Logs
 *.log
+
+# Temporary/Generated files
 all_docs_output.txt
 generate_doc.py
 read_docs.py
+gen_report.py
+gen_report_part1.py
+
+# Report generation (academic docs - not part of source code)
+*.docx
+*.pdf
+*.tex
+report/
+template_image.jpeg
+sensors-*.pdf
 
 # Gemini
 .gemini/
