@@ -479,11 +479,40 @@ npm run dev
 cd "d:\smart health care\app\server"
 node seed_data.js
 
-# Terminal 3: Start IoT Simulator
+# Terminal 3: Start IoT Devices (Telemetry Simulator)
 cd "d:\smart health care\app"
 pip install requests
+
+# Option A: Start ALL patient devices concurrently (Recommended for testing the live dashboard)
+# Broadcasts real-time telemetry (HR, SpO2, Temp, RR, MAP, SysBP, EtCO2) for 5 ICU patients simultaneously
+python simulator/iot_simulator.py ALL --interval 3.0
+
+# Option B: Start a single patient device (Default: PT-00001)
 python simulator/iot_simulator.py PT-00001
+
+# Option C: Start a device with a specific clinical scenario
+# Available scenarios: normal, gradual_deterioration, sudden_spike, noisy, missing, stale, duplicate
+python simulator/iot_simulator.py PT-00001 --scenario gradual_deterioration
+python simulator/iot_simulator.py PT-00003 --scenario sudden_spike
+
+# Option D: Test device telemetry locally without sending network requests (Dry Run)
+python simulator/iot_simulator.py ALL --dry-run
+
+# Option E: Stop running background simulator devices safely
+python simulator/iot_simulator.py ALL --stop
+python simulator/iot_simulator.py PT-00001 --stop
 ```
+
+### Physical Hardware Devices (ESP32 + Sensors)
+To flash and run physical IoT sensor hardware:
+1. **Firmware Source:** Located at `app/hardware/healthcare_sensor/healthcare_sensor.ino`.
+2. **Sensors Supported:** ESP32 Microcontroller, MAX30102 (Pulse Oximeter & Heart Rate), DS18B20 (Waterproof Temperature).
+3. **Flashing Steps:**
+   - Open `app/hardware/healthcare_sensor/healthcare_sensor.ino` in the Arduino IDE.
+   - Configure your local Wi-Fi SSID and Password.
+   - Set the server URL to point to your machine: `http://<SERVER_IP>:3001/api/health-data`.
+   - Ensure `X-Device-Key` header matches the `DEVICE_API_KEY` defined in `app/server/.env`.
+   - Connect the ESP32 via USB, select your board and COM port, then click **Upload**.
 
 ### Login Credentials (after running seed_data.js)
 | Role | Email | Password |
@@ -503,8 +532,8 @@ python simulator/iot_simulator.py PT-00001
 
 ### URLs
 - Frontend: http://localhost:5173
-- Backend API: http://localhost:3000/api
-- Health Check: http://localhost:3000/api/health
+- Backend API: http://localhost:3001/api
+- Health Check: http://localhost:3001/api/health
 
 ---
 
@@ -522,8 +551,10 @@ python simulator/iot_simulator.py PT-00001
 | POST | /api/patients | Doctor/Admin | Add patient (with linkedUserId) |
 | PUT | /api/patients/:id | Doctor/Admin | Update patient |
 | DELETE | /api/patients/:id | Admin | Delete patient |
-| POST | /api/health-data | No | Store IoT reading |
-| GET | /api/health-data/:patientId | Yes | Get history |
+| POST | /api/health-data | No | Store IoT reading (supports 7 ICU vitals: HR, SpO2, Temp, RR, MAP, SysBP, EtCO2) |
+| GET | /api/health-data/:patientId | Yes | Get history with all 7 vitals |
+| GET | /api/health-data/overview/deterioration-risks | Yes | Batch 6-hour ML deterioration risk triage for all assigned patients |
+| GET | /api/health-data/:patientId/deterioration-risk | Yes | Patient 6-hour LightGBM deterioration probability, risk tier & top drivers |
 | GET | /api/alerts/stats/summary | Yes | Alert stats (role-scoped) |
 | GET | /api/alerts/my-patient-ids | Yes | Patient IDs this user can see (for socket filtering) |
 | GET | /api/alerts | Yes | List alerts (role-filtered, ?patientId= for per-patient) |

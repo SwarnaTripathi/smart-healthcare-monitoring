@@ -52,10 +52,16 @@ function PatientDashboard() {
   };
 
   const vitalStatus = (val, type) => {
-    if (!val) return 'normal';
-    if (type === 'hr') return (val < 50 || val > 120) ? 'critical' : (val < 60 || val > 100) ? 'warning' : 'normal';
-    if (type === 'spo2') return val < 90 ? 'critical' : val < 95 ? 'warning' : 'normal';
-    if (type === 'temp') return (val < 35 || val > 39.5) ? 'critical' : (val < 36.1 || val > 37.5) ? 'warning' : 'normal';
+    if (val === undefined || val === null || val === '—') return 'normal';
+    const num = Number(val);
+    if (isNaN(num)) return 'normal';
+    if (type === 'hr') return (num < 50 || num > 120) ? 'critical' : (num < 60 || num > 100) ? 'warning' : 'normal';
+    if (type === 'spo2') return num < 90 ? 'critical' : num < 95 ? 'warning' : 'normal';
+    if (type === 'temp') return (num < 35 || num > 39.5) ? 'critical' : (num < 36.1 || num > 37.5) ? 'warning' : 'normal';
+    if (type === 'rr') return (num < 10 || num > 28) ? 'critical' : (num < 12 || num > 22) ? 'warning' : 'normal';
+    if (type === 'map') return (num < 60 || num > 115) ? 'critical' : (num < 70 || num > 105) ? 'warning' : 'normal';
+    if (type === 'sysbp') return (num < 85 || num > 160) ? 'critical' : (num < 90 || num > 140) ? 'warning' : 'normal';
+    if (type === 'etco2') return (num < 28 || num > 50) ? 'critical' : (num < 35 || num > 45) ? 'warning' : 'normal';
     return 'normal';
   };
 
@@ -120,7 +126,7 @@ function PatientDashboard() {
         </div>
       )}
 
-      {/* Live Vitals */}
+      {/* Live Vitals (All 7 Clinical Vitals) */}
       {latestVitals && (
         <div style={{ marginBottom: 24 }}>
           <h3 style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: 14, fontWeight: 600 }}>LIVE VITALS</h3>
@@ -142,6 +148,30 @@ function PatientDashboard() {
               <div className="vital-value">{latestVitals.temperature}</div>
               <div className="vital-unit">°C</div>
               <div className="vital-label">Temperature</div>
+            </div>
+            <div className={`vital-card ${vitalStatus(latestVitals.respRate, 'rr')}`}>
+              <div className="vital-icon">💨</div>
+              <div className="vital-value">{latestVitals.respRate != null ? latestVitals.respRate : '—'}</div>
+              <div className="vital-unit">brpm</div>
+              <div className="vital-label">Resp Rate</div>
+            </div>
+            <div className={`vital-card ${vitalStatus(latestVitals.sysBP, 'sysbp')}`}>
+              <div className="vital-icon">🩺</div>
+              <div className="vital-value">{latestVitals.sysBP != null ? latestVitals.sysBP : '—'}</div>
+              <div className="vital-unit">mmHg</div>
+              <div className="vital-label">Systolic BP</div>
+            </div>
+            <div className={`vital-card ${vitalStatus(latestVitals.map, 'map')}`}>
+              <div className="vital-icon">💓</div>
+              <div className="vital-value">{latestVitals.map != null ? latestVitals.map : '—'}</div>
+              <div className="vital-unit">mmHg</div>
+              <div className="vital-label">MAP</div>
+            </div>
+            <div className={`vital-card ${vitalStatus(latestVitals.etco2, 'etco2')}`}>
+              <div className="vital-icon">🧪</div>
+              <div className="vital-value">{latestVitals.etco2 != null ? latestVitals.etco2 : '—'}</div>
+              <div className="vital-unit">mmHg</div>
+              <div className="vital-label">EtCO2</div>
             </div>
           </div>
         </div>

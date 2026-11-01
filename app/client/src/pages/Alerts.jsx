@@ -28,10 +28,18 @@ function Alerts() {
     });
 
     socket.on('alert-acknowledged', (ackAlert) => {
-      setAlerts(prev => prev.map(a => a._id === ackAlert._id ? { ...a, acknowledged: true } : a));
+      setAlerts(prev => prev.map(a => a._id === ackAlert._id ? { ...a, acknowledged: true, status: 'acknowledged' } : a));
     });
 
-    return () => { socket.off('new-alert'); socket.off('alert-acknowledged'); };
+    socket.on('alert-resolved', (resAlert) => {
+      setAlerts(prev => prev.map(a => a._id === resAlert._id ? { ...a, resolved: true, status: 'resolved' } : a));
+    });
+
+    return () => {
+      socket.off('new-alert');
+      socket.off('alert-acknowledged');
+      socket.off('alert-resolved');
+    };
   }, []);
 
   const fetchMyPatientIds = async () => {
@@ -67,27 +75,36 @@ function Alerts() {
   const acknowledge = async (id) => {
     try {
       await api.put(`/alerts/${id}/acknowledge`);
-      setAlerts(prev => prev.map(a => a._id === id ? { ...a, acknowledged: true } : a));
+      setAlerts(prev => prev.map(a => a._id === id ? { ...a, acknowledged: true, status: 'acknowledged' } : a));
       toast.success('Alert acknowledged');
     } catch (e) { toast.error('Failed to acknowledge'); }
+  };
+
+  const resolveAlert = async (id) => {
+    try {
+      await api.put(`/alerts/${id}/resolve`, { resolutionReason: 'Clinician resolved alert' });
+      setAlerts(prev => prev.map(a => a._id === id ? { ...a, resolved: true, status: 'resolved' } : a));
+      toast.success('Alert marked as resolved');
+    } catch (e) { toast.error('Failed to resolve alert'); }
   };
 
   const acknowledgeAll = async () => {
     try {
       await api.put('/alerts/acknowledge-all');
-      setAlerts(prev => prev.map(a => ({ ...a, acknowledged: true })));
+      setAlerts(prev => prev.map(a => ({ ...a, acknowledged: true, status: 'acknowledged' })));
       toast.success('All alerts acknowledged');
     } catch (e) { toast.error('Failed'); }
   };
 
   const filtered = alerts.filter(a => {
-    if (filter === 'unacknowledged') return !a.acknowledged;
+    if (filter === 'unacknowledged') return !a.acknowledged && a.status !== 'resolved';
+    if (filter === 'resolved') return a.status === 'resolved';
     if (filter === 'critical') return a.type === 'critical';
     if (filter === 'warning') return a.type === 'warning';
     return true;
   });
 
-  const unackCount = alerts.filter(a => !a.acknowledged).length;
+  const unackCount = alerts.filter(a => !a.acknowledged && a.status !== 'resolved').length;
 
   // Count alerts per patient for the filter badges
   const patientAlertCounts = {};
@@ -137,9 +154,9 @@ function Alerts() {
         </div>
       )}
 
-      {/* Type Filters */}
+      {/* Type & Lifecycle Filters */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        {['all', 'unacknowledged', 'critical', 'warning'].map(f => (
+        {['all', 'unacknowledged', 'resolved', 'critical', 'warning'].map(f => (
           <button key={f} className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-secondary'}`}
             style={{ width: 'auto', textTransform: 'capitalize' }}
             onClick={() => setFilter(f)}>
@@ -159,23 +176,48 @@ function Alerts() {
           </div>
         ) : (
           filtered.map(alert => (
-            <div key={alert._id} className={`alert-item ${alert.acknowledged ? 'acknowledged' : ''}`}>
+            <div key={alert._id} className={`alert-item ${alert.status === 'resolved' ? 'resolved' : alert.acknowledged ? 'acknowledged' : ''}`}>
               <div className={`alert-icon ${alert.type === 'critical' ? 'critical-icon' : 'warning-icon'}`}>
                 {alert.type === 'critical' ? <FiAlertOctagon /> : <FiAlertTriangle />}
               </div>
               <div className="alert-content">
-                <div className="alert-message">{alert.message}</div>
+                <div className="alert-message">
+                  {alert.message}
+                  {alert.source && (
+                    <span style={{ marginLeft: 8, fontSize: '0.72rem', padding: '2px 6px', borderRadius: 4, background: '#334155', color: '#94a3b8' }}>
+                      {alert.source.replace('_', ' ').toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                {alert.explanation && (
+                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: 4 }}>
+                    {alert.explanation}
+                  </div>
+                )}
                 <div className="alert-meta">
                   Patient: {alert.patientName || alert.patientId} &nbsp;·&nbsp;
                   {new Date(alert.createdAt).toLocaleString()}
-                  {alert.acknowledged && <span> &nbsp;·&nbsp; ✓ Acknowledged</span>}
+                  {alert.status === 'resolved' ? (
+                    <span style={{ color: '#10b981' }}> &nbsp;·&nbsp; ✓ Resolved</span>
+                  ) : alert.acknowledged ? (
+                    <span> &nbsp;·&nbsp; ✓ Acknowledged</span>
+                  ) : (
+                    <span style={{ color: '#f59e0b' }}> &nbsp;·&nbsp; Open</span>
+                  )}
                 </div>
               </div>
-              {!alert.acknowledged && (user?.role === 'doctor' || user?.role === 'admin') && (
-                <button className="btn btn-sm btn-secondary" style={{ width: 'auto', whiteSpace: 'nowrap' }} onClick={() => acknowledge(alert._id)}>
-                  <FiCheckCircle /> Ack
-                </button>
-              )}
+              <div style={{ display: 'flex', gap: 6 }}>
+                {!alert.acknowledged && alert.status !== 'resolved' && (user?.role === 'doctor' || user?.role === 'admin') && (
+                  <button className="btn btn-sm btn-secondary" style={{ width: 'auto', whiteSpace: 'nowrap' }} onClick={() => acknowledge(alert._id)}>
+                    <FiCheckCircle /> Ack
+                  </button>
+                )}
+                {alert.status !== 'resolved' && (user?.role === 'doctor' || user?.role === 'admin') && (
+                  <button className="btn btn-sm btn-secondary" style={{ width: 'auto', whiteSpace: 'nowrap' }} onClick={() => resolveAlert(alert._id)}>
+                    Resolve
+                  </button>
+                )}
+              </div>
             </div>
           ))
         )}

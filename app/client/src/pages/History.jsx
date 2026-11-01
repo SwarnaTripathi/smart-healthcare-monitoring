@@ -97,34 +97,60 @@ function History() {
         <>
           {/* Combined Chart */}
           <div className="card" style={{ marginBottom: 24 }}>
-            <div className="card-header"><h3>📈 All Vitals Over Time</h3></div>
+            <div className="card-header"><h3>📈 All ICU Vital Signs Over Time</h3></div>
             <div className="card-body">
-              <div style={{ height: 320 }}>
+              <div style={{ height: 340 }}>
                 <Line data={{
                   labels,
                   datasets: [
-                    { label: 'Heart Rate (bpm)', data: healthData.map(d => d.heartRate), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.05)', fill: true },
-                    { label: 'SpO2 (%)', data: healthData.map(d => d.spO2), borderColor: '#4cc9f0', backgroundColor: 'rgba(76,201,240,0.05)', fill: true },
-                    { label: 'Temperature (°C)', data: healthData.map(d => d.temperature), borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.05)', fill: true }
+                    { label: 'Heart Rate (bpm)', data: healthData.map(d => d.heartRate), borderColor: '#ef4444', backgroundColor: 'transparent' },
+                    { label: 'SpO2 (%)', data: healthData.map(d => d.spO2), borderColor: '#4cc9f0', backgroundColor: 'transparent' },
+                    { label: 'Temperature (°C)', data: healthData.map(d => d.temperature), borderColor: '#fbbf24', backgroundColor: 'transparent' },
+                    { label: 'Resp Rate (brpm)', data: healthData.map(d => d.respRate ?? 16), borderColor: '#06d6a0', backgroundColor: 'transparent' },
+                    { label: 'Sys BP (mmHg)', data: healthData.map(d => d.sysBP ?? 120), borderColor: '#a855f7', backgroundColor: 'transparent' },
+                    { label: 'MAP (mmHg)', data: healthData.map(d => d.map ?? 85), borderColor: '#3b82f6', backgroundColor: 'transparent', borderDash: [4, 4] },
+                    { label: 'EtCO2 (mmHg)', data: healthData.map(d => d.etco2 ?? 38), borderColor: '#ec4899', backgroundColor: 'transparent' },
                   ]
-                }} options={chartOpts} />
+                }} options={{
+                  ...chartOpts,
+                  plugins: {
+                    ...chartOpts.plugins,
+                    legend: { display: true, labels: { color: '#94a3b8', font: { family: 'Inter', size: 10 } } }
+                  }
+                }} />
               </div>
             </div>
           </div>
 
           {/* Data Table */}
           <div className="card">
-            <div className="card-header"><h3>📊 Raw Data (Latest {Math.min(healthData.length, 50)})</h3></div>
+            <div className="card-header"><h3>📊 Clinical Vitals Telemetry (Latest {Math.min(healthData.length, 50)})</h3></div>
             <div className="table-container">
               <table>
-                <thead><tr><th>Time</th><th>Heart Rate</th><th>SpO2</th><th>Temperature</th><th>Status</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Heart Rate</th>
+                    <th>SpO2</th>
+                    <th>Temperature</th>
+                    <th>Resp Rate</th>
+                    <th>Sys BP</th>
+                    <th>MAP</th>
+                    <th>EtCO2</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {healthData.slice(-50).reverse().map((d, i) => (
                     <tr key={i}>
-                      <td>{new Date(d.timestamp).toLocaleString()}</td>
+                      <td style={{ fontSize: '0.8rem' }}>{new Date(d.timestamp).toLocaleString()}</td>
                       <td style={{ color: d.heartRate > 120 || d.heartRate < 50 ? '#ef4444' : '#e2e8f0' }}>{d.heartRate} bpm</td>
                       <td style={{ color: d.spO2 < 94 ? '#ef4444' : '#e2e8f0' }}>{d.spO2}%</td>
                       <td style={{ color: d.temperature > 38 || d.temperature < 36 ? '#fbbf24' : '#e2e8f0' }}>{d.temperature}°C</td>
+                      <td>{d.respRate != null ? `${d.respRate} brpm` : '—'}</td>
+                      <td>{d.sysBP != null ? `${d.sysBP} mmHg` : '—'}</td>
+                      <td>{d.map != null ? `${d.map} mmHg` : '—'}</td>
+                      <td>{d.etco2 != null ? `${d.etco2} mmHg` : '—'}</td>
                       <td><span className={`badge badge-${d.status}`}>{d.status}</span></td>
                     </tr>
                   ))}

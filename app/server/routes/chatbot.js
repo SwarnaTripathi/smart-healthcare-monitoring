@@ -4,6 +4,32 @@ const HealthData = require('../models/HealthData');
 const Patient = require('../models/Patient');
 const Alert = require('../models/Alert');
 
+// ── Role-scoped patient resolver (H-7) ────────────────────────────────────────
+async function _getScopedPatient(userId, role) {
+  if (role === 'patient') {
+    const p = await Patient.findOne({ user: userId });
+    return p || null;
+  }
+  if (role === 'doctor') {
+    return await Patient.findOne({ assignedDoctor: userId }).sort({ updatedAt: -1 });
+  }
+  // admin — return most recently updated patient
+  return await Patient.findOne().sort({ updatedAt: -1 });
+}
+
+async function _getScopedAlertFilter(userId, role) {
+  if (role === 'patient') {
+    const p = await Patient.findOne({ user: userId });
+    return p ? { patientId: p.patientId } : null;
+  }
+  if (role === 'doctor') {
+    const patients = await Patient.find({ assignedDoctor: userId }).select('patientId');
+    const pids = patients.map(p => p.patientId);
+    return pids.length ? { patientId: { $in: pids } } : null;
+  }
+  return {}; // admin sees all
+}
+
 const router = express.Router();
 
 // Health knowledge base
@@ -203,18 +229,18 @@ async function generateResponse(intent, userId, userRole) {
   }
 }
 
-// Fetch patient vitals
+// ── Fetch patient vitals — scoped to requesting user (H-7) ──────────────────
 async function getPatientVitals(userId, role) {
   try {
-    const patient = await Patient.findOne({ assignedDoctor: userId }).sort({ createdAt: -1 }) || await Patient.findOne();
+    const patient = await _getScopedPatient(userId, role);
     if (!patient) return { text: "I couldn't find any patient records linked to your account yet.", type: 'info' };
 
     const latest = await HealthData.findOne({ patientId: patient.patientId }).sort({ timestamp: -1 });
     if (!latest) return { text: `Patient **${patient.name}** (${patient.patientId}) has no health readings yet. Start the IoT simulator to begin monitoring.`, type: 'info' };
 
-    const hrStatus = latest.heartRate < 60 || latest.heartRate > 100 ? '⚠️' : '✅';
-    const spo2Status = latest.spO2 < 95 ? '⚠️' : '✅';
-    const tempStatus = latest.temperature < 36.1 || latest.temperature > 37.5 ? '⚠️' : '✅';
+    const hrStatus   = latest.heartRate < 60 || latest.heartRate > 100 ? '⚠️' : '✅';
+    const spo2Status  = latest.spO2 < 95 ? '⚠️' : '✅';
+    const tempStatus  = latest.temperature < 36.1 || latest.temperature > 37.5 ? '⚠️' : '✅';
 
     return {
       text: `**Latest Vitals for ${patient.name}** 📊\n_${new Date(latest.timestamp).toLocaleString()}_\n\n${hrStatus} Heart Rate: **${latest.heartRate} bpm** (Normal: 60-100)\n${spo2Status} SpO2: **${latest.spO2}%** (Normal: 95-100)\n${tempStatus} Temperature: **${latest.temperature}°C** (Normal: 36.1-37.2)\n\n📋 Overall Status: **${latest.status.toUpperCase()}**`,
@@ -225,21 +251,23 @@ async function getPatientVitals(userId, role) {
 
 async function getSpecificVital(userId, role, vital) {
   try {
-    const patient = await Patient.findOne({ assignedDoctor: userId }).sort({ createdAt: -1 }) || await Patient.findOne();
+    const patient = await _getScopedPatient(userId, role);
     if (!patient) return { text: "No patient records found.", type: 'info' };
     const latest = await HealthData.findOne({ patientId: patient.patientId }).sort({ timestamp: -1 });
     if (!latest) return { text: "No health data available yet.", type: 'info' };
 
     const labels = { heartRate: 'Heart Rate', spO2: 'SpO2', temperature: 'Temperature' };
-    const units = { heartRate: 'bpm', spO2: '%', temperature: '°C' };
-    const value = latest[vital];
+    const units  = { heartRate: 'bpm', spO2: '%', temperature: '°C' };
+    const value  = latest[vital];
     return { text: `**${labels[vital]}:** ${value} ${units[vital]}\n_Recorded: ${new Date(latest.timestamp).toLocaleString()}_\n\nPatient: ${patient.name} (${patient.patientId})`, type: 'info' };
   } catch (e) { return { text: 'Error fetching data.', type: 'error' }; }
 }
 
 async function getPatientAlerts(userId, role) {
   try {
-    const alerts = await Alert.find({ acknowledged: false }).sort({ createdAt: -1 }).limit(5);
+    const filter = await _getScopedAlertFilter(userId, role);
+    if (!filter) return { text: "No patient records linked to your account.", type: 'info' };
+    const alerts = await Alert.find({ ...filter, acknowledged: false }).sort({ createdAt: -1 }).limit(5);
     if (alerts.length === 0) return { text: "✅ No pending alerts! All systems are running normally.", type: 'info' };
     const list = alerts.map(a => `• **${a.type.toUpperCase()}:** ${a.message}`).join('\n');
     return { text: `**Pending Alerts (${alerts.length})** 🔔\n\n${list}`, type: 'warning' };

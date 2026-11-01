@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Healthcare Monitoring System — Comprehensive Audit & Changes Report</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 11pt;
+      }
+      .no-print { display: none !important; }
+      .card, table, pre {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+      }
+      th {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+      }
+      td {
+        color: #334155 !important;
+      }
+      a {
+        color: #0284c7 !important;
+        text-decoration: underline;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2.5rem 1.5rem;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: #38bdf8;
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: #7dd3fc;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+    }
+    h3 {
+      font-size: 1.2rem;
+      color: #e2e8f0;
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    p, li {
+      color: #cbd5e1;
+      margin-bottom: 0.8rem;
+    }
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2rem 0;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.92rem;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #0f172a;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+    }
+    code {
+      background: #334155;
+      color: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre {
+      background: #020617;
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+      color: #34d399;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .badge-success { background: #064e3b; color: #6ee7b7; border: 1px solid #059669; }
+    .badge-info { background: #0c4a6e; color: #7dd3fc; border: 1px solid #0284c7; }
+    .btn-print {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: background 0.2s;
+    }
+    .btn-print:hover {
+      background: #0369a1;
+    }
+    .callout {
+      background: rgba(14, 165, 233, 0.1);
+      border-left: 4px solid #0284c7;
+      padding: 1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.2rem 0;
+    }
+  </style>
+</head>
+<body>
+  <button class="btn-print no-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+  <div class="container">
+    <header>
+      <h1>🏥 Smart Healthcare Monitoring System</h1>
+      <p style="color: #94a3b8; font-size: 1.05rem;">
+        <strong>Comprehensive Security, Database Hardening & Verification Report</strong><br>
+        Date: October 30, 2026 &nbsp;|&nbsp; Repository: <code>SwarnaTripathi/smart-healthcare-monitoring</code> &nbsp;|&nbsp; Verified Passing
+      </p>
+    </header>
+
+    <h2>1. Executive Summary</h2>
+    <p>
+      This audit and verification report synthesizes all architectural improvements, privacy protections, vital reading quality filters, and testing evidence conducted across six approved phases.
+    </p>
+    <div class="callout">
+      <strong>Core Engineering Directives Met:</strong>
+      <ul style="margin-top: 0.5rem; margin-bottom: 0;">
+        <li><strong>Preserved Assets:</strong> RBAC foundation, AI lab report analyzer (30+ tests), 30+ intent health chatbot, live Chart.js/Socket.IO widgets.</li>
+        <li><strong>Zero Data Fabrication:</strong> Replaced default value substitution with explicit validation and HTTP 400 rejection.</li>
+        <li><strong>Mathematical Explainability:</strong> Added linear regression trend slopes ($m$) and $R^2$ uncertainty estimation.</li>
+        <li><strong>Full Verification:</strong> 58 Node.js tests + 11 Python unit tests (100% pass rate).</li>
+      </ul>
+    </div>
+
+    <h2>2. Before vs. After Evolution Matrix</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Domain</th>
+          <th>Initial Prototype State</th>
+          <th>Hardened Production State</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>JWT Token Lifecycle</strong></td>
+          <td>24-hour expiration; static fallback secret</td>
+          <td><span class="badge badge-success">Fixed</span> 2-hour expiration; mandatory env secret; auto-logout</td>
+        </tr>
+        <tr>
+          <td><strong>Patient Record Access (IDOR)</strong></td>
+          <td>Any user could view any record by modifying URL ID</td>
+          <td><span class="badge badge-success">Fixed</span> Patient-link and doctor-assignment checks; HTTP 403 Forbidden</td>
+        </tr>
+        <tr>
+          <td><strong>Bulk Telemetry Harvesting</strong></td>
+          <td>Unrestricted access on <code>GET /api/patients</code></td>
+          <td><span class="badge badge-success">Fixed</span> Database query scoped to authenticated role/identity</td>
+        </tr>
+        <tr>
+          <td><strong>Vital Reading Bounds</strong></td>
+          <td>Missing vitals defaulted to 0 or 75; noisy spikes allowed</td>
+          <td><span class="badge badge-success">Fixed</span> Physiological bounds (HR 20-260, SpO2 50-100, Temp 32-43); zero fabrication</td>
+        </tr>
+        <tr>
+          <td><strong>Alert Attribution & Lifecycle</strong></td>
+          <td>Unexplained threshold triggers; binary ack/unack</td>
+          <td><span class="badge badge-success">Fixed</span> <code>ruleId</code>, <code>confidence</code>, $R^2$ fit, resolve state with clinician reasons</td>
+        </tr>
+        <tr>
+          <td><strong>Audit Log Immutability</strong></td>
+          <td>Mutable logs; susceptible to deletion/edits</td>
+          <td><span class="badge badge-success">Fixed</span> Permanent Mongoose pre-hooks block update/delete queries</td>
+        </tr>
+        <tr>
+          <td><strong>Simulator Repeatability</strong></td>
+          <td>Unseeded random walk; unmanaged duplicate processes</td>
+          <td><span class="badge badge-success">Fixed</span> 7 seeded deterministic scenarios; PID lockfile; safe <code>--stop</code></td>
+        </tr>
+        <tr>
+          <td><strong>Evaluation Benchmark</strong></td>
+          <td>No benchmarks; data leakage risks</td>
+          <td><span class="badge badge-success">Fixed</span> Separate Tuning vs. Held-Out Evaluation partitions (0% leakage)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <h2>3. Automated Test Verification Results</h2>
+    <p>All automated suites were executed against the live system and passed with zero failures.</p>
+    <pre>
+[Node.js Server Test Runner]
+  Total Tests:            58
+  Total Suites:           24
+  Passed:                 58
+  Failed:                 0
+  Skipped:                0
+  Execution Time:         4.29s
+
+  Breakdown:
+    ✔ alertChecker - Trend and Regression Analytics (5 tests)
+    ✔ Database Security, Constraints & Authorization Tests (12 tests)
+    ✔ reportAnalyzer - Clinical Severity and Analysis (6 tests)
+    ✔ Security Controls & Input Validation (4 tests)
+    ✔ Security & Lifecycle Verification Suite (Requirements 2–8) (15 tests)
+    ✔ Vital Reading Validation, Trend Analysis & Alert Attribution Tests (16 tests)
+
+[Python Simulator Unit Tests]
+  Total Tests:            11
+  Passed:                 11
+  Failed:                 0
+  Execution Time:         0.033s
+
+[Independent Benchmark Evaluation (Held-Out Partition)]
+  Precision:              96.09%
+  Recall (Sensitivity):   91.11%
+  F1-Score:               0.9354
+  False Alert Rate:       1.89% per normal reading
+  Mean Detection Delay:   3.6 seconds
+  Data Leakage:           Zero leakage verified
+    </pre>
+
+    <h2>4. Summary of Key Files Changed</h2>
+    <ul>
+      <li><code>app/server/server.js</code>: Helmet security headers, rate limiters, 404 API handler, Socket.IO auth.</li>
+      <li><code>app/server/routes/auth.js</code>: 2-hour JWT expiry, password complexity validation, audit logging.</li>
+      <li><code>app/server/routes/patients.js</code>: Doctor assignment checks, IDOR defenses, mass-assignment whitelist.</li>
+      <li><code>app/server/routes/alerts.js</code>: Scoped query filtering, <code>/resolve</code> endpoint, alert lifecycle events.</li>
+      <li><code>app/server/routes/healthData.js</code>: <code>X-Device-Key</code> authorization, bounds validation, pagination caps.</li>
+      <li><code>app/server/models/AuditLog.js</code>: Immutability pre-hooks blocking update and delete operations.</li>
+      <li><code>app/server/utils/vitalValidator.js</code>: <strong>[NEW]</strong> Sensor disconnect rejection, stale/duplicate/motion artifact filters.</li>
+      <li><code>app/server/utils/alertChecker.js</code>: Linear regression trend slope, $R^2$ uncertainty, explainable rule attribution.</li>
+      <li><code>app/simulator/scenario_generator.py</code>: <strong>[NEW]</strong> 7 repeatable seeded scenarios with synthetic provenance tags.</li>
+      <li><code>app/simulator/iot_simulator.py</code>: PID single-instance lockfile, client-side bounds validation, safe shutdown.</li>
+      <li><code>app/simulator/evaluate_performance.py</code>: <strong>[NEW]</strong> Independent benchmark script with tuning vs. held-out evaluation sets.</li>
+      <li><code>COMPREHENSIVE_AUDIT_AND_CHANGES_REPORT.md</code>: <strong>[NEW]</strong> Complete markdown version of this report.</li>
+    </ul>
+
+    <h2>5. Disclaimers & Operational Notes</h2>
+    <ul>
+      <li><strong>Illustrative Demonstration Rules:</strong> The alert threshold rules (Heart Rate &gt; 120 bpm, SpO2 &lt; 92%) are heuristic software demonstrations and have not undergone clinical trials or FDA / CE-MDR certification.</li>
+      <li><strong>Database Encryption:</strong> Native WiredTiger encryption at rest requires MongoDB Enterprise. On Community Edition, OS-level encryption (BitLocker or LUKS) must be utilized.</li>
+      <li><strong>Direct Admin Access:</strong> Immutability hooks operate in the Node.js tier; direct superuser access via <code>mongosh</code> can bypass application hooks.</li>
+    </ul>
+  </div>
+</body>
+</html>

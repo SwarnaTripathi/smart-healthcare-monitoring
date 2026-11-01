@@ -4,13 +4,13 @@ const reportSchema = new mongoose.Schema({
   patientId: { type: String, required: true, index: true },
   patientName: { type: String, default: '' },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  title: { type: String, required: true, trim: true },
+  title: { type: String, required: true, trim: true, maxlength: 200 },
   type: {
     type: String,
     enum: ['lab_report', 'prescription', 'imaging', 'discharge_summary', 'other'],
     default: 'lab_report'
   },
-  description: { type: String, default: '' },
+  description: { type: String, default: '', maxlength: 2000 },
   fileName: { type: String, required: true },
   filePath: { type: String, required: true },
   fileSize: { type: Number, default: 0 },
@@ -54,5 +54,7 @@ const reportSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 reportSchema.index({ patientId: 1, createdAt: -1 });
+reportSchema.index({ fileName: 1 });
+reportSchema.index({ uploadedBy: 1 });
 
 module.exports = mongoose.model('Report', reportSchema);

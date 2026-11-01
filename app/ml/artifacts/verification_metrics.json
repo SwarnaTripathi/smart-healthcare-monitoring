@@ -1,0 +1,223 @@
+{
+  "evaluation_type": "5-Fold Patient-Level GroupKFold Out-Of-Fold Validation",
+  "n_samples": 126051,
+  "n_positive": 19080,
+  "n_negative": 106971,
+  "prevalence": 0.15136730371040294,
+  "metrics": {
+    "roc_auc": 0.7122708978590898,
+    "pr_auc": 0.30103400457108,
+    "brier_score": 0.12073247842595157,
+    "brier_baseline": 0.1284552430778456,
+    "brier_skill_score": 0.06012027587861024,
+    "fold_metrics": [
+      {
+        "fold": 1,
+        "roc_auc": 0.7966907528082439,
+        "pr_auc": 0.5319462987912474
+      },
+      {
+        "fold": 2,
+        "roc_auc": 0.690953482739279,
+        "pr_auc": 0.23221357571992562
+      },
+      {
+        "fold": 3,
+        "roc_auc": 0.5974545234615287,
+        "pr_auc": 0.2431997811024818
+      },
+      {
+        "fold": 4,
+        "roc_auc": 0.6865433458269646,
+        "pr_auc": 0.35782657926530737
+      },
+      {
+        "fold": 5,
+        "roc_auc": 0.7768465453436346,
+        "pr_auc": 0.37139093684426705
+      }
+    ]
+  },
+  "optimal_threshold_018": {
+    "threshold": 0.18,
+    "sensitivity": 0.7603773584905661,
+    "specificity": 0.6073047835394639,
+    "precision": 0.25671060780323807,
+    "f1": 0.38383490971625106,
+    "confusion_matrix": {
+      "tp": 14508,
+      "fp": 42007,
+      "fn": 4572,
+      "tn": 64964
+    }
+  },
+  "threshold_comparison": [
+    {
+      "threshold": 0.1,
+      "sensitivity": 1.0,
+      "specificity": 0.0,
+      "precision": 0.15136730371040294,
+      "f1": 0.2629348657419848,
+      "tp": 19080,
+      "fp": 106971,
+      "fn": 0,
+      "tn": 0
+    },
+    {
+      "threshold": 0.15,
+      "sensitivity": 0.8504192872117401,
+      "specificity": 0.49451720559777884,
+      "precision": 0.23081737745028308,
+      "f1": 0.363087113159838,
+      "tp": 16226,
+      "fp": 54072,
+      "fn": 2854,
+      "tn": 52899
+    },
+    {
+      "threshold": 0.18,
+      "sensitivity": 0.7603773584905661,
+      "specificity": 0.6073047835394639,
+      "precision": 0.25671060780323807,
+      "f1": 0.38383490971625106,
+      "tp": 14508,
+      "fp": 42007,
+      "fn": 4572,
+      "tn": 64964
+    },
+    {
+      "threshold": 0.2,
+      "sensitivity": 0.7015199161425576,
+      "specificity": 0.6509427788839965,
+      "precision": 0.26387903162211185,
+      "f1": 0.38350237808721566,
+      "tp": 13385,
+      "fp": 37339,
+      "fn": 5695,
+      "tn": 69632
+    },
+    {
+      "threshold": 0.25,
+      "sensitivity": 0.5187106918238994,
+      "specificity": 0.7664507202886763,
+      "precision": 0.2837442660550459,
+      "f1": 0.3668272794662713,
+      "tp": 9897,
+      "fp": 24983,
+      "fn": 9183,
+      "tn": 81988
+    },
+    {
+      "threshold": 0.35,
+      "sensitivity": 0.09360587002096436,
+      "specificity": 0.9787419020108253,
+      "precision": 0.4399014778325123,
+      "f1": 0.1543647363872083,
+      "tp": 1786,
+      "fp": 2274,
+      "fn": 17294,
+      "tn": 104697
+    },
+    {
+      "threshold": 0.5,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "precision": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 19080,
+      "tn": 106971
+    },
+    {
+      "threshold": 0.65,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "precision": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 19080,
+      "tn": 106971
+    },
+    {
+      "threshold": 0.8,
+      "sensitivity": 0.0,
+      "specificity": 1.0,
+      "precision": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 19080,
+      "tn": 106971
+    }
+  ],
+  "calibration_points": [
+    {
+      "bin": 1,
+      "mean_predicted_prob": 0.1073980425591237,
+      "observed_fraction_positive": 0.06294094332144273
+    },
+    {
+      "bin": 2,
+      "mean_predicted_prob": 0.11727469329439795,
+      "observed_fraction_positive": 0.03125
+    },
+    {
+      "bin": 3,
+      "mean_predicted_prob": 0.1262685176510461,
+      "observed_fraction_positive": 0.07314738856986601
+    },
+    {
+      "bin": 4,
+      "mean_predicted_prob": 0.13392011143055102,
+      "observed_fraction_positive": 0.04549754067347711
+    },
+    {
+      "bin": 5,
+      "mean_predicted_prob": 0.1516275592213107,
+      "observed_fraction_positive": 0.10074331804523169
+    },
+    {
+      "bin": 6,
+      "mean_predicted_prob": 0.18159153017102478,
+      "observed_fraction_positive": 0.137213970293055
+    },
+    {
+      "bin": 7,
+      "mean_predicted_prob": 0.22531500141391375,
+      "observed_fraction_positive": 0.2298841874195746
+    },
+    {
+      "bin": 8,
+      "mean_predicted_prob": 0.2602012797525616,
+      "observed_fraction_positive": 0.2349799732977303
+    },
+    {
+      "bin": 9,
+      "mean_predicted_prob": 0.29479789988472704,
+      "observed_fraction_positive": 0.25206349206349205
+    },
+    {
+      "bin": 10,
+      "mean_predicted_prob": 0.3448148100048365,
+      "observed_fraction_positive": 0.3431450333227547
+    }
+  ],
+  "error_analysis": {
+    "fp_count": 42007,
+    "fn_count": 4572,
+    "fp_scenario_distribution": {
+      "normal": 0.7548979931916109,
+      "sepsis": 0.0936034470445402,
+      "respiratory_failure": 0.06591758516437736,
+      "sensor_artifact": 0.04668269574118599,
+      "cardiac_decompensation": 0.03889827885828552
+    },
+    "fn_scenario_distribution": {
+      "respiratory_failure": 0.49803149606299213,
+      "sepsis": 0.2915573053368329,
+      "cardiac_decompensation": 0.210411198600175
+    }
+  }
+}

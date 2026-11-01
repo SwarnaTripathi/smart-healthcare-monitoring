@@ -105,7 +105,12 @@ function generateReading(profile, t) {
   spo2 = clamp(spo2, 80, 100);
   temp = clamp(temp, 34, 42);
 
-  return { heartRate: hr, spO2: spo2, temperature: temp };
+  const rr = Math.round(clamp(16 + (hr - 75) * 0.08 + gauss(0, 1), 8, 40));
+  const sysbp = Math.round(clamp(120 + (hr - 75) * 0.25 + gauss(0, 3), 70, 200));
+  const map = Math.round(clamp(sysbp * 0.68 + gauss(0, 2), 50, 130));
+  const etco2 = Math.round(clamp(38 - (rr - 16) * 0.4 + gauss(0, 1.5), 20, 60));
+
+  return { heartRate: hr, spO2: spo2, temperature: temp, respRate: rr, sysBP: sysbp, map, etco2 };
 }
 
 function buildAlerts(patientId, patientName, hr, spo2, temp) {
@@ -202,7 +207,7 @@ async function seed() {
     for (let day = DAYS_OF_DATA - 1; day >= 0; day--) {
       for (let r = 0; r < READINGS_PER_DAY; r++) {
         const t = (DAYS_OF_DATA - day) * READINGS_PER_DAY + r;
-        const { heartRate, spO2, temperature } = generateReading(profile, t);
+        const { heartRate, spO2, temperature, respRate, sysBP, map, etco2 } = generateReading(profile, t);
         const status = determineStatus(heartRate, spO2, temperature);
 
         // Spread readings across the day (every ~20 min)
@@ -214,6 +219,10 @@ async function seed() {
           heartRate,
           spO2,
           temperature,
+          respRate,
+          sysBP,
+          map,
+          etco2,
           status,
           timestamp,
         });

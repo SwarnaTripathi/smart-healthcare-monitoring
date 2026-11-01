@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+// ── Counter collection for collision-safe patient IDs (M-8) ───────────────────
+const counterSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  seq:  { type: Number, default: 0 }
+});
+const Counter = mongoose.model('Counter', counterSchema);
+
 const patientSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -34,20 +41,23 @@ const patientSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: 20
   },
   address: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: 500
   },
   emergencyContact: {
-    name: { type: String, default: '' },
-    phone: { type: String, default: '' },
-    relation: { type: String, default: '' }
+    name:     { type: String, default: '', maxlength: 100 },
+    phone:    { type: String, default: '', maxlength: 20 },
+    relation: { type: String, default: '', maxlength: 50 }
   },
   medicalHistory: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: 5000
   },
   assignedDoctor: {
     type: mongoose.Schema.Types.ObjectId,
@@ -61,17 +71,45 @@ const patientSchema = new mongoose.Schema({
   },
   deviceId: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: 50
   }
 }, {
   timestamps: true
 });
 
-// Auto-generate patientId
-patientSchema.pre('validate', async function(next) {
+// Indexes for query performance and role/assignment ownership lookup
+patientSchema.index({ user: 1 });
+patientSchema.index({ assignedDoctor: 1 });
+patientSchema.index({ status: 1 });
+
+// M-8: Atomic auto-increment via findOneAndUpdate with migration-safe counter seeding
+patientSchema.pre('validate', async function (next) {
   if (!this.patientId) {
-    const count = await mongoose.model('Patient').countDocuments();
-    this.patientId = `PT-${String(count + 1).padStart(5, '0')}`;
+    let counter = await Counter.findById('patientId');
+    if (!counter) {
+      // Find highest existing numerical patientId suffix to seed without collisions
+      const lastPatient = await mongoose.model('Patient')
+        .findOne({ patientId: /^PT-\d+$/ })
+        .sort({ patientId: -1 });
+      let currentMax = 0;
+      if (lastPatient && lastPatient.patientId) {
+        const match = lastPatient.patientId.match(/^PT-(\d+)$/);
+        if (match) currentMax = parseInt(match[1], 10);
+      }
+      await Counter.findOneAndUpdate(
+        { _id: 'patientId' },
+        { $setOnInsert: { seq: currentMax } },
+        { upsert: true }
+      );
+    }
+
+    const updatedCounter = await Counter.findOneAndUpdate(
+      { _id: 'patientId' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    this.patientId = `PT-${String(updatedCounter.seq).padStart(5, '0')}`;
   }
   next();
 });

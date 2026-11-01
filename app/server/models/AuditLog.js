@@ -13,5 +13,14 @@ const auditLogSchema = new mongoose.Schema({
 
 auditLogSchema.index({ createdAt: -1 });
 auditLogSchema.index({ category: 1, createdAt: -1 });
+auditLogSchema.index({ userId: 1, createdAt: -1 });
+
+// Enforce audit log immutability: prevent deletion or modification via ORM/Mongoose
+auditLogSchema.pre(['deleteOne', 'deleteMany', 'findOneAndDelete'], function (next) {
+  next(new Error('Security Violation: Audit logs are immutable and cannot be deleted.'));
+});
+auditLogSchema.pre(['updateOne', 'updateMany', 'findOneAndUpdate'], function (next) {
+  next(new Error('Security Violation: Audit logs are immutable and cannot be modified.'));
+});
 
 module.exports = mongoose.model('AuditLog', auditLogSchema);

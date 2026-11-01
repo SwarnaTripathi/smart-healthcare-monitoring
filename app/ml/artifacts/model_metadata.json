@@ -1,0 +1,114 @@
+{
+  "model_name": "HealthGuard LightGBM 6h Deterioration Classifier",
+  "horizon_hours": 6.0,
+  "target_variable": "deterioration_within_6h",
+  "metrics": {
+    "roc_auc": 0.7456,
+    "pr_auc": 0.3034,
+    "brier_score": 0.1202,
+    "optimal_threshold": 0.27,
+    "sensitivity_recall": 0.5785,
+    "specificity": 0.7612,
+    "precision": 0.3015,
+    "f1_score": 0.3964,
+    "confusion_matrix": {
+      "tn": 81483,
+      "fp": 25569,
+      "fn": 8043,
+      "tp": 11037
+    }
+  },
+  "feature_columns": [
+    "heartRate",
+    "spO2",
+    "temperature",
+    "respRate",
+    "map",
+    "sysBP",
+    "etco2",
+    "hr_mean_30m",
+    "hr_mean_1h",
+    "hr_mean_3h",
+    "spo2_mean_30m",
+    "spo2_mean_1h",
+    "spo2_mean_3h",
+    "temp_mean_1h",
+    "temp_mean_3h",
+    "rr_mean_30m",
+    "rr_mean_1h",
+    "map_mean_30m",
+    "map_mean_1h",
+    "sysbp_mean_1h",
+    "etco2_mean_1h",
+    "hr_std_1h",
+    "spo2_std_1h",
+    "temp_std_1h",
+    "rr_std_1h",
+    "map_std_1h",
+    "hr_max_1h",
+    "spo2_min_1h",
+    "temp_max_1h",
+    "rr_max_1h",
+    "map_min_1h",
+    "sysbp_min_1h",
+    "hr_delta_30m",
+    "hr_delta_1h",
+    "spo2_delta_30m",
+    "spo2_delta_1h",
+    "temp_delta_1h",
+    "rr_delta_30m",
+    "map_delta_30m",
+    "sysbp_delta_1h",
+    "etco2_delta_1h",
+    "hr_spo2_ratio",
+    "decompensation_index",
+    "combined_volatility",
+    "resp_distress_idx",
+    "pulse_pressure_proxy"
+  ],
+  "top_features": [
+    {
+      "feature": "etco2_mean_1h",
+      "importance": 36.6
+    },
+    {
+      "feature": "spo2_mean_3h",
+      "importance": 29.799999999999997
+    },
+    {
+      "feature": "rr_mean_1h",
+      "importance": 22.2
+    },
+    {
+      "feature": "sysbp_mean_1h",
+      "importance": 21.4
+    },
+    {
+      "feature": "temp_mean_1h",
+      "importance": 18.0
+    },
+    {
+      "feature": "temp_max_1h",
+      "importance": 17.4
+    },
+    {
+      "feature": "map_mean_30m",
+      "importance": 17.0
+    },
+    {
+      "feature": "hr_max_1h",
+      "importance": 14.000000000000002
+    },
+    {
+      "feature": "map_mean_1h",
+      "importance": 12.4
+    },
+    {
+      "feature": "hr_mean_1h",
+      "importance": 10.600000000000001
+    }
+  ],
+  "n_patients": 100,
+  "n_samples": 126132,
+  "positive_ratio": 0.1513
+}

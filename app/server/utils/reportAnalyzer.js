@@ -7,72 +7,94 @@
 // ── Medical Reference Ranges ────────────────────────────────────
 const REFERENCE_RANGES = {
   // Complete Blood Count (CBC)
-  hemoglobin:    { unit: 'g/dL',      male: [13.5, 17.5], female: [12.0, 15.5], label: 'Hemoglobin' },
-  wbc:           { unit: '×10³/µL',   normal: [4.5, 11.0],  label: 'White Blood Cells (WBC)' },
-  rbc:           { unit: '×10⁶/µL',   male: [4.7, 6.1], female: [4.2, 5.4], label: 'Red Blood Cells (RBC)' },
-  platelets:     { unit: '×10³/µL',   normal: [150, 400],   label: 'Platelet Count' },
+  hemoglobin:    { unit: 'g/dL',      male: [13.5, 17.5], female: [12.0, 15.5], label: 'Hemoglobin',
+                   criticalLow: 7.0,  criticalHigh: 20.0 },
+  wbc:           { unit: '\u00d710\u00b3/\u00b5L',   normal: [4.5, 11.0],  label: 'White Blood Cells (WBC)',
+                   criticalLow: 2.0,  criticalHigh: 30.0 },
+  rbc:           { unit: '\u00d710\u2076/\u00b5L',   male: [4.7, 6.1], female: [4.2, 5.4], label: 'Red Blood Cells (RBC)' },
+  platelets:     { unit: '\u00d710\u00b3/\u00b5L',   normal: [150, 400],   label: 'Platelet Count',
+                   criticalLow: 50,   criticalHigh: 1000 },
   hematocrit:    { unit: '%',         male: [38.3, 48.6], female: [35.5, 44.9], label: 'Hematocrit (HCT)' },
 
   // Metabolic Panel
-  glucose_fasting: { unit: 'mg/dL',   normal: [70, 100],    label: 'Fasting Blood Glucose' },
-  glucose_pp:      { unit: 'mg/dL',   normal: [70, 140],    label: 'Post-Prandial Glucose' },
-  hba1c:           { unit: '%',       normal: [4.0, 5.6],   label: 'HbA1c (Glycated Hemoglobin)' },
-  creatinine:      { unit: 'mg/dL',   male: [0.7, 1.3], female: [0.6, 1.1], label: 'Serum Creatinine' },
-  urea:            { unit: 'mg/dL',   normal: [7, 20],      label: 'Blood Urea Nitrogen (BUN)' },
-  uric_acid:       { unit: 'mg/dL',   male: [3.4, 7.0], female: [2.4, 6.0], label: 'Uric Acid' },
+  glucose_fasting: { unit: 'mg/dL',   normal: [70, 100],    label: 'Fasting Blood Glucose',
+                     criticalLow: 40,  criticalHigh: 500 },
+  glucose_pp:      { unit: 'mg/dL',   normal: [70, 140],    label: 'Post-Prandial Glucose',
+                     criticalLow: 40,  criticalHigh: 500 },
+  hba1c:           { unit: '%',       normal: [4.0, 5.6],   label: 'HbA1c (Glycated Hemoglobin)',
+                     criticalHigh: 12.0 },
+  creatinine:      { unit: 'mg/dL',   male: [0.7, 1.3], female: [0.6, 1.1], label: 'Serum Creatinine',
+                     criticalHigh: 10.0 },
+  urea:            { unit: 'mg/dL',   normal: [7, 20],      label: 'Blood Urea Nitrogen (BUN)',
+                     criticalHigh: 100 },
+  uric_acid:       { unit: 'mg/dL',   male: [3.4, 7.0], female: [2.4, 6.0], label: 'Uric Acid',
+                     criticalHigh: 12.0 },
 
   // Lipid Profile
-  cholesterol_total: { unit: 'mg/dL', normal: [0, 200],     label: 'Total Cholesterol' },
-  hdl:               { unit: 'mg/dL', normal: [40, 200],    label: 'HDL Cholesterol (Good)' },
-  ldl:               { unit: 'mg/dL', normal: [0, 100],     label: 'LDL Cholesterol (Bad)' },
-  triglycerides:     { unit: 'mg/dL', normal: [0, 150],     label: 'Triglycerides' },
+  cholesterol_total: { unit: 'mg/dL', normal: [0, 200],     label: 'Total Cholesterol',
+                       criticalHigh: 400 },
+  hdl:               { unit: 'mg/dL', normal: [40, 200],    label: 'HDL Cholesterol (Good)',
+                       criticalLow: 20 },
+  ldl:               { unit: 'mg/dL', normal: [0, 100],     label: 'LDL Cholesterol (Bad)',
+                       criticalHigh: 300 },
+  triglycerides:     { unit: 'mg/dL', normal: [0, 150],     label: 'Triglycerides',
+                       criticalHigh: 1000 },
 
   // Liver Function
-  sgot:         { unit: 'U/L',  normal: [8, 40],    label: 'SGOT / AST' },
-  sgpt:         { unit: 'U/L',  normal: [7, 56],    label: 'SGPT / ALT' },
-  bilirubin:    { unit: 'mg/dL', normal: [0.1, 1.2], label: 'Total Bilirubin' },
-  albumin:      { unit: 'g/dL',  normal: [3.5, 5.0], label: 'Serum Albumin' },
+  sgot:         { unit: 'U/L',  normal: [8, 40],    label: 'SGOT / AST',   criticalHigh: 1000 },
+  sgpt:         { unit: 'U/L',  normal: [7, 56],    label: 'SGPT / ALT',   criticalHigh: 1000 },
+  bilirubin:    { unit: 'mg/dL', normal: [0.1, 1.2], label: 'Total Bilirubin', criticalHigh: 15.0 },
+  albumin:      { unit: 'g/dL',  normal: [3.5, 5.0], label: 'Serum Albumin',  criticalLow: 1.5 },
 
   // Thyroid
-  tsh:   { unit: 'mIU/L', normal: [0.4, 4.0],   label: 'TSH' },
+  tsh:   { unit: 'mIU/L', normal: [0.4, 4.0],   label: 'TSH',
+            criticalLow: 0.01, criticalHigh: 100 },
   t3:    { unit: 'ng/dL',  normal: [80, 200],    label: 'T3 (Triiodothyronine)' },
-  t4:    { unit: 'µg/dL',  normal: [5.1, 14.1],  label: 'T4 (Thyroxine)' },
+  t4:    { unit: '\u00b5g/dL',  normal: [5.1, 14.1],  label: 'T4 (Thyroxine)' },
 
   // Iron Studies
-  iron:      { unit: 'µg/dL', normal: [60, 170],    label: 'Serum Iron' },
+  iron:      { unit: '\u00b5g/dL', normal: [60, 170],    label: 'Serum Iron' },
   ferritin:  { unit: 'ng/mL', male: [12, 300], female: [12, 150], label: 'Ferritin' },
 
   // Vitamins
-  vitamin_d: { unit: 'ng/mL', normal: [30, 100],  label: 'Vitamin D (25-OH)' },
-  vitamin_b12: { unit: 'pg/mL', normal: [200, 900], label: 'Vitamin B12' },
+  vitamin_d:   { unit: 'ng/mL',  normal: [30, 100],  label: 'Vitamin D (25-OH)',   criticalLow: 10 },
+  vitamin_b12: { unit: 'pg/mL',  normal: [200, 900], label: 'Vitamin B12',          criticalLow: 100 },
 
   // Electrolytes
-  sodium:    { unit: 'mEq/L', normal: [136, 145], label: 'Sodium' },
-  potassium: { unit: 'mEq/L', normal: [3.5, 5.0], label: 'Potassium' },
-  calcium:   { unit: 'mg/dL', normal: [8.5, 10.5], label: 'Calcium' },
+  sodium:    { unit: 'mEq/L', normal: [136, 145], label: 'Sodium',
+               criticalLow: 120,  criticalHigh: 160 },
+  potassium: { unit: 'mEq/L', normal: [3.5, 5.0], label: 'Potassium',
+               criticalLow: 2.5,  criticalHigh: 6.5 },
+  calcium:   { unit: 'mg/dL', normal: [8.5, 10.5], label: 'Calcium',
+               criticalLow: 6.0,  criticalHigh: 14.0 },
 
   // Kidney
-  egfr: { unit: 'mL/min', normal: [90, 200], label: 'eGFR (Kidney Function)' },
+  egfr: { unit: 'mL/min', normal: [90, 200], label: 'eGFR (Kidney Function)', criticalLow: 15 },
 
   // Inflammation
   esr: { unit: 'mm/hr', male: [0, 22], female: [0, 29], label: 'ESR (Sed Rate)' },
-  crp: { unit: 'mg/L',  normal: [0, 3.0], label: 'C-Reactive Protein (CRP)' },
+  crp: { unit: 'mg/L',  normal: [0, 3.0], label: 'C-Reactive Protein (CRP)', criticalHigh: 100 },
 };
 
-// ── Severity Classification ─────────────────────────────────────
-
-function classifySeverity(value, low, high) {
+// ── Severity Classification (L-4: absolute clinical cutoffs first) ───────────
+// ref is the REFERENCE_RANGES entry, which may have criticalLow / criticalHigh.
+function classifySeverity(value, low, high, ref) {
+  // Absolute clinical critical thresholds take priority over percentage logic
+  if (ref) {
+    if (ref.criticalLow  !== undefined && value < ref.criticalLow)  return { status: 'critical', direction: 'low' };
+    if (ref.criticalHigh !== undefined && value > ref.criticalHigh) return { status: 'critical', direction: 'high' };
+  }
   if (value < low) {
     const pctBelow = ((low - value) / low) * 100;
-    if (pctBelow > 30) return { status: 'critical', direction: 'low' };
-    if (pctBelow > 15) return { status: 'abnormal', direction: 'low' };
-    return { status: 'borderline', direction: 'low' };
+    if (pctBelow > 30) return { status: 'critical',   direction: 'low' };
+    if (pctBelow > 15) return { status: 'abnormal',   direction: 'low' };
+    return               { status: 'borderline', direction: 'low' };
   }
   if (value > high) {
     const pctAbove = ((value - high) / high) * 100;
-    if (pctAbove > 50) return { status: 'critical', direction: 'high' };
-    if (pctAbove > 20) return { status: 'abnormal', direction: 'high' };
-    return { status: 'borderline', direction: 'high' };
+    if (pctAbove > 50) return { status: 'critical',   direction: 'high' };
+    if (pctAbove > 20) return { status: 'abnormal',   direction: 'high' };
+    return               { status: 'borderline', direction: 'high' };
   }
   return { status: 'normal', direction: 'normal' };
 }
@@ -182,7 +204,7 @@ function analyzeReport(labValues, patientGender = 'Male') {
     if (!range) continue;
 
     const [low, high] = range;
-    const { status, direction } = classifySeverity(numValue, low, high);
+    const { status, direction } = classifySeverity(numValue, low, high, ref);
 
     const detail = {
       test: ref.label,
@@ -254,4 +276,4 @@ function analyzeReport(labValues, patientGender = 'Male') {
   };
 }
 
-module.exports = { analyzeReport, REFERENCE_RANGES };
+module.exports = { analyzeReport, REFERENCE_RANGES, classifySeverity };

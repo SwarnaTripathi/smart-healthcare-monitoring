@@ -1,286 +1,179 @@
 <div align="center">
 
-# 🏥 Smart Healthcare Monitoring System
+# 🏥 Smart Healthcare Monitoring & Patient Deterioration Prediction System
 
-### IoT-Driven Patient Monitoring with Real-Time Dashboard, RBAC & AI Analytics
+### IoT-Driven Telemetry with 7 ICU Vitals, Real-Time WebSockets, 3D WebGL Digital Twin & LightGBM 6-Hour Early Warning AI
 
-[![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-v25.7+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18.2+-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-7.0-47A248?logo=mongodb&logoColor=white)](https://mongodb.com/)
-[![Socket.IO](https://img.shields.io/badge/Socket.IO-4.x-010101?logo=socket.io&logoColor=white)](https://socket.io/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![LightGBM](https://img.shields.io/badge/LightGBM-4.3+-ff69b4?logo=python&logoColor=white)](https://lightgbm.readthedocs.io/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-4.7+-010101?logo=socket.io&logoColor=white)](https://socket.io/)
+[![Three.js](https://img.shields.io/badge/Three.js-0.162+-black?logo=three.js&logoColor=white)](https://threejs.org/)
+
+[📖 View 20-Page Complete Master Report & Viva Voce Guide (PDF)](COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.pdf)
 
 </div>
 
 ---
 
-## 📋 Overview
+## 📋 System Overview
 
-A **secure, real-time healthcare monitoring system** that collects patient vitals (heart rate, SpO2, temperature) from IoT sensors, displays live data on a premium dark-themed dashboard, enforces role-based access control (Patient/Doctor/Admin), provides AI-powered lab report analysis, and includes an intelligent health chatbot assistant.
+The **Smart Healthcare Monitoring System** is an end-to-end medical cyber-physical system designed to bridge continuous physiological sensor monitoring with real-time distributed web communication and predictive machine learning.
 
-> **Phase 1** of a 3-phase project integrating IoT, Blockchain Security, and AI-Driven Analytics.
+Traditional clinical monitoring in general wards and ICUs relies predominantly on intermittent nurse spot-checks or hard-threshold alarms. These existing mechanisms suffer from two fatal shortcomings:
+1. **Alarm Fatigue:** Frequent false alarms caused by motion artifacts or single-tick threshold spikes desensitize clinical staff.
+2. **Lagging Indicators:** Conventional monitors only sound alarms *after* physiological collapse has already begun.
 
----
-
-## ✨ Features
-
-| Feature | Description |
-|---------|-------------|
-| 📊 **Real-Time Dashboard** | Live vital signs with Chart.js graphs & Socket.IO streaming — role-specific views for Patient, Doctor, and Admin |
-| 🔐 **Role-Based Access Control** | Separate portals with data isolation — patients see only their data, doctors see assigned patients, admins see everything |
-| 🧬 **AI Lab Report Analyzer** | 30+ lab tests analyzed with gender-aware reference ranges, severity classification, and personalized recommendations |
-| 🤖 **AI Health Chatbot** | 30+ intents — vitals query, health tips, emergency guidance, first aid, personalized with real patient data |
-| 📱 **IoT Data Pipeline** | Python simulator + ESP32 Arduino code for real hardware (MAX30102 + DS18B20) |
-| 📁 **Medical Report Management** | Upload lab reports, prescriptions, imaging files with AI-powered analysis |
-| 👥 **User & Patient Management** | Admin panel with account creation, role switching, 2-step patient onboarding workflow |
-| 📡 **Device Monitoring** | Track IoT devices, online/offline status, average health metrics |
-| 🚨 **Smart Alerts** | Auto-generated health alerts with threshold-based detection, role-filtered views, bulk acknowledgement |
-| 📝 **Audit Logging** | Complete system activity trail for accountability and compliance |
-| 🌙 **Premium Dark UI** | Glassmorphism design with micro-animations and responsive layout |
+### 4-Tier Medical Architecture Delivered
+- **Continuous Edge Telemetry:** Collects and transmits **7 mission-critical ICU vital parameters** (HR, SpO2, Core Temp, Resp Rate, SysBP, MAP, EtCO2) in real time via ESP32 microcontrollers or synthetic multi-patient virtual patient telemetry engines.
+- **Secure High-Throughput Ingestion:** Node.js/Express server backed by MongoDB, featuring strict device authentication (`X-Device-Key`), role-based access control (RBAC), and localized Socket.IO room-level broadcast.
+- **Predictive Deterioration Engine (HealthGuard ML):** A forward-looking 6-hour patient deterioration prediction engine powered by LightGBM GBDT trained on 47 dynamic physiological indicators (ROC-AUC: **0.7456**, Optimal Threshold: **0.2700**, Sensitivity: **78.2%**).
+- **Clinical Web Application:** React + Vite single-page dashboard featuring a 3D Three.js interactive organ canvas, real-time multi-trace charts, an executive multi-patient risk triage table, and an automated medical report lab-analyzer.
 
 ---
 
-## 🏗️ Architecture
+## 🗂️ Project Directory Structure
+
+The project repository is structured cleanly into logical directories:
 
 ```
-┌─────────────────┐     HTTP POST      ┌──────────────────┐
-│  IoT Simulator   │ ──────────────── │   Express.js     │
-│  (Python/ESP32)  │  /api/health-data │   Backend :3000  │
-└─────────────────┘                    │                  │     ┌──────────┐
-┌─────────────────┐  REST + WebSocket  │   Socket.IO      │ ──► │ MongoDB  │
-│  React Frontend  │ ◄───────────────► │   Real-time      │     │ Database │
-│  (Vite :5173)    │   JWT Auth        │                  │     └──────────┘
-└─────────────────┘                    └──────────────────┘
+smart-healthcare-monitoring/
+│
+├── COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.pdf  # 📄 20-Page Printable Master Engineering Report & Viva Guide
+│
+├── app/                                        # 💻 Core Software Application
+│   ├── client/                                 # React 18 + Vite Frontend Dashboard & 3D Three.js Organ Canvas
+│   ├── server/                                 # Node.js/Express Backend, WebSockets, Security & REST APIs
+│   ├── ml/                                     # HealthGuard ML: LightGBM 6h Model, Features & Cohort Datasets
+│   ├── simulator/                              # Python IoT Multi-Patient Telemetry Engine (ALL mode)
+│   └── hardware/                               # ESP32 C++ Arduino Firmware (MAX30102 PPG & DS18B20 1-Wire)
+│
+├── docs/                                       # 📚 Project Documentation & Academic Assets
+│   ├── reports/                                # Master Production Reports & Audit Logs
+│   │   ├── COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.pdf
+│   │   ├── COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.html
+│   │   ├── COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.md
+│   │   ├── COMPREHENSIVE_AUDIT_AND_CHANGES_REPORT.html
+│   │   ├── COMPREHENSIVE_AUDIT_AND_CHANGES_REPORT.md
+│   │   ├── PROJECT_DOCUMENTATION.html
+│   │   └── PROJECT_DOCUMENTATION.md
+│   ├── technical_guides/                       # In-Depth Engineering & Security Manuals
+│   │   ├── DATABASE_SECURITY_AND_OPERATIONS.md
+│   │   ├── HARDWARE_GUIDE.md
+│   │   ├── SIMULATOR_AND_EVALUATION.md
+│   │   └── gap_report.md
+│   ├── thesis_chapters_docx/                   # Academic Thesis Chapters (Word .docx format)
+│   │   ├── Chapter1_Chapter2_Expanded.docx ... Chapter11_Results_and_Performance_Analysis.docx
+│   │   ├── PROJECT REPORT TEMPLATE.docx
+│   │   └── Smart_Healthcare_Final_Year_Project_Report.docx
+│   └── research_papers/                        # Reference Medical Literature & Published Papers
+│       ├── sensors-22-00572-v3.pdf
+│       └── Smart_Healthcare_Diagrams_Pack.pdf
+│
+├── report/                                     # 🎓 LaTeX Source for Academic Project Report
+│   ├── chapters/                               # LaTeX Chapter Files (ch01 to ch11)
+│   ├── main.tex                                # Master LaTeX Document
+│   └── Smart_Healthcare_Report.tex
+│
+├── tools/                                      # ⚙️ Utility Scripts & Text Extraction Tools
+│   ├── gen_report.py
+│   ├── generate_doc.py
+│   ├── read_docs.py
+│   └── all_docs_output.txt
+│
+└── scratch/                                    # 🛠️ Build & PDF Generation Scripts
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## 🏥 The 7 Monitored Clinical ICU Vitals
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 19, Vite, Chart.js, react-chartjs-2, Socket.IO Client, React Router, React Icons |
-| **Backend** | Node.js, Express.js, Mongoose, Socket.IO, Multer |
-| **Database** | MongoDB |
-| **Auth** | JWT + bcryptjs |
-| **IoT** | Python (simulator), ESP32 + MAX30102 + DS18B20 (hardware) |
-| **AI/Analytics** | Custom NLP chatbot (30+ intents), Lab report analyzer (30+ tests) |
+| Vital Sign | Unit | Normal Range | Warning Range | Critical Range | Clinical Rationale |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Heart Rate (HR)** | bpm | 60 – 100 | 50-60 or 100-120 | < 50 or > 120 | Cardiac chronotropic drive |
+| **Blood Oxygen (SpO2)** | % | 95 – 100 | 90 – 94 | < 90 | Arterial oxyhemoglobin saturation |
+| **Core Temperature** | °C | 36.1 – 37.5 | 35.0-36.1, 37.5-38.5 | < 35.0 or > 38.5 | Thermoregulatory & systemic inflammation |
+| **Respiratory Rate (RR)** | brpm | 12 – 20 | 10-12 or 21-28 | < 10 or > 28 | **Most sensitive early sign of deterioration** |
+| **Systolic Blood Pressure** | mmHg | 90 – 120 | 85-90 or 121-140 | < 85 or > 140 | Left ventricular stroke volume output |
+| **Mean Arterial Press. (MAP)**| mmHg | 70 – 105 | 60-70 or 106-115 | < 60 or > 115 | **Vital organ perfusion (MAP < 65 = Shock)** |
+| **End-Tidal CO2 (EtCO2)** | mmHg | 35 – 45 | 28-35 or 46-50 | < 28 or > 50 | Alveolar ventilation & pulmonary blood flow |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-- Node.js v18+
-- MongoDB running locally on port 27017
-- Python 3.x (for IoT simulator)
+1. **Node.js** v18+ (tested on v25.7)
+2. **MongoDB** running locally on port `27017`
+3. **Python** 3.10+ with `requests`, `pandas`, `numpy`, `lightgbm`, `joblib`, `scikit-learn`
 
-### Installation
+---
 
-```bash
-# Clone the repository
-git clone https://github.com/SwarnaTripathi/smart-healthcare-monitoring.git
-cd smart-healthcare-monitoring
-
-# Install backend dependencies
-cd app/server
-npm install
-
-# Install frontend dependencies
-cd ../client
-npm install
+### Step 1: Start MongoDB
+```powershell
+net start MongoDB
+# Or run mongod directly:
+mongod --dbpath "C:\data\db"
 ```
 
-### Configuration
+### Step 2: Start Backend Server (Terminal 1)
+```powershell
+cd "app/server"
+npm install
+node server.js
+# Backend active at: http://localhost:3001
+```
 
-Create a `.env` file inside `app/server/` with the following variables:
-
-| Variable | Description |
-|----------|-------------|
-| `PORT` | Server port (default: 3000) |
-| `MONGODB_URI` | MongoDB connection string |
-| `JWT_SECRET` | Secret key for JWT token signing |
-
-> **⚠️ Security Note:** Never commit your `.env` file. It is already included in `.gitignore`.
-
-### Running
-
-```bash
-# Terminal 1: Start Backend
-cd app/server
+### Step 3: Start Frontend Client (Terminal 2)
+```powershell
+cd "app/client"
+npm install
 npm run dev
+# Frontend active at: http://localhost:5173
+```
 
-# Terminal 2: Start Frontend
-cd app/client
-npm run dev
-
-# (Optional) Seed demo data with synthetic patients & health readings
-cd app/server
+### Step 4: Seed Demo Data & Users (Optional / Initial Setup)
+```powershell
+cd "app/server"
 node seed_data.js
-
-# Terminal 3: Start IoT Simulator
-pip install requests
-python app/simulator/iot_simulator.py PT-00001
 ```
 
-### Access
+### Step 5: Start Simulated IoT Devices (Terminal 3)
+```powershell
+cd "app"
 
-| URL | Description |
-|-----|-------------|
-| http://localhost:5173 | Web Application |
-| http://localhost:3000/api/health | API Health Check |
+# Option A: Start ALL 5 patient devices concurrently (RECOMMENDED FOR DEMO)
+python simulator/iot_simulator.py ALL --interval 3.0
 
-### Demo Credentials (after running `seed_data.js`)
+# Option B: Run a single patient with specific scenario
+python simulator/iot_simulator.py PT-00001 --scenario gradual_deterioration
+python simulator/iot_simulator.py PT-00003 --scenario sudden_spike
 
-| Role | Email | Password |
-|------|-------|----------|
-| 🔑 Admin | admin@healthguard.com | admin123 |
-| 🩺 Doctor | priya@healthguard.com | doctor123 |
-| 🩺 Doctor | rahul@healthguard.com | doctor123 |
-| 🧑 Patient | amit@patient.com | patient123 |
-| 🧑 Patient | sneha@patient.com | patient123 |
-| 🧑 Patient | ravi@patient.com | patient123 |
-| 🆕 Unlinked | neha@patient.com | patient123 |
-| 🆕 Unlinked | arjun@patient.com | patient123 |
-
-> **Note:** "Unlinked" patients have registered accounts but no Patient record yet. Log in as a doctor and click "Add Patient" to assign them.
-
----
-
-## 📁 Project Structure
-
-```
-├── app/
-│   ├── server/                      # Express.js Backend
-│   │   ├── config/db.js             # MongoDB connection
-│   │   ├── models/                  # Mongoose schemas
-│   │   │   ├── User.js              # User auth & roles
-│   │   │   ├── Patient.js           # Patient profiles (auto-ID, doctor link)
-│   │   │   ├── HealthData.js        # IoT sensor readings
-│   │   │   ├── Alert.js             # Health alerts
-│   │   │   ├── Report.js            # Medical report uploads + AI analysis
-│   │   │   └── AuditLog.js          # System audit trail
-│   │   ├── routes/                  # API routes
-│   │   │   ├── auth.js              # Register (patient-only), Login
-│   │   │   ├── patients.js          # Patient CRUD + role-based filtering
-│   │   │   ├── healthData.js        # IoT data ingestion + history
-│   │   │   ├── alerts.js            # Alert management (role-filtered)
-│   │   │   ├── reports.js           # File upload/download + AI analysis
-│   │   │   ├── admin.js             # Admin management APIs + audit logs
-│   │   │   └── chatbot.js           # AI health chatbot (30+ intents)
-│   │   ├── middleware/auth.js       # JWT verification + RBAC
-│   │   ├── utils/
-│   │   │   ├── alertChecker.js      # Threshold-based alert engine
-│   │   │   └── reportAnalyzer.js    # AI lab report analysis (30+ tests)
-│   │   ├── seed_data.js             # Synthetic data seeder
-│   │   └── server.js                # Entry point + Socket.IO
-│   ├── client/                      # React Frontend
-│   │   └── src/
-│   │       ├── pages/               # 12 role-specific pages
-│   │       │   ├── Login.jsx        # Auth page (patient-only register)
-│   │       │   ├── Dashboard.jsx    # Doctor dashboard (live vitals)
-│   │       │   ├── PatientDashboard.jsx  # Patient view (own data)
-│   │       │   ├── AdminDashboard.jsx    # System overview
-│   │       │   ├── Patients.jsx     # Patient management (2-step add)
-│   │       │   ├── History.jsx      # Health data history
-│   │       │   ├── Alerts.jsx       # Alert management
-│   │       │   ├── MyReports.jsx    # Report upload + AI analysis UI
-│   │       │   ├── MyProfile.jsx    # Patient profile
-│   │       │   ├── UserManagement.jsx    # Admin user control
-│   │       │   ├── DeviceManagement.jsx  # IoT device monitoring
-│   │       │   └── AuditLogs.jsx    # System activity logs
-│   │       ├── components/
-│   │       │   ├── Layout.jsx       # Sidebar + role-based navigation
-│   │       │   └── ChatBot.jsx      # AI chatbot floating widget
-│   │       ├── context/AuthContext.jsx   # Global auth state
-│   │       ├── utils/
-│   │       │   ├── api.js           # Axios with JWT interceptor
-│   │       │   └── socket.js        # Socket.IO client config
-│   │       ├── App.jsx              # Route definitions + role-based routing
-│   │       └── index.css            # Complete design system
-│   ├── simulator/                   # Python IoT simulator
-│   │   ├── iot_simulator.py
-│   │   └── requirements.txt
-│   └── hardware/                    # ESP32 Arduino sketch
-│       └── healthcare_sensor/
-├── PROJECT_DOCUMENTATION.md         # Complete code explanations & interview guide
-├── HARDWARE_GUIDE.md                # Hardware wiring & setup guide
-└── README.md
+# Option C: Stop all running simulator instances
+python simulator/iot_simulator.py ALL --stop
 ```
 
 ---
 
-## 🔒 Role-Based Data Access
+## 👥 Demo Login Credentials
 
-| Data | Patient | Doctor | Admin |
-|------|---------|--------|-------|
-| Patient records | ✅ Own only | ✅ Assigned only | ✅ All |
-| Health data & vitals | ✅ Own only | ✅ Assigned patients | ✅ All |
-| Alerts | ✅ Own only | ✅ Assigned (can ack) | ✅ All (full control) |
-| Reports + AI Analysis | ✅ Own upload/view | ✅ Assigned patients | ✅ All |
-| User management | ❌ | ❌ | ✅ Full CRUD |
-| Device monitoring | ❌ | ❌ | ✅ View all |
-| Audit logs | ❌ | ❌ | ✅ View all |
-| Add patient | ❌ | ✅ From unlinked pool | ✅ From unlinked pool |
-| Create doctor/admin | ❌ | ❌ | ✅ Any role |
-| Self-register | ✅ Patient only | ❌ Created by admin | ❌ Created by admin |
-| Chatbot | ✅ | ✅ | ✅ |
+| Role | Email | Password | Permissions & Portal |
+| :--- | :--- | :--- | :--- |
+| **Doctor (Primary)** | `priya@healthguard.com` | `doctor123` | Patient triage, 7-vitals grid, 6h ML risk scores, multi-trace charts, clinical action advice |
+| **Doctor (Secondary)** | `rajesh@healthguard.com` | `doctor123` | Secondary doctor cohort access |
+| **Administrator** | `admin@healthguard.com` | `admin123` | Hospital analytics, user management, audit logs |
+| **Patient** | `amit@patient.com` | `patient123` | Bedside digital twin, 3D WebGL organ canvas, report upload |
 
 ---
 
-## 📡 API Endpoints
+## 📄 Key Documentation Links
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | No | Create patient account |
-| POST | `/api/auth/login` | No | Login + get JWT |
-| GET | `/api/auth/me` | Yes | Get current user |
-| GET | `/api/patients` | Yes | List patients (role-filtered) |
-| GET | `/api/patients/:id` | Yes | Get single patient |
-| GET | `/api/patients/unlinked-users` | Doctor/Admin | Unassigned patients |
-| GET | `/api/patients/stats/summary` | Yes | Patient stats (role-scoped) |
-| POST | `/api/patients` | Doctor/Admin | Add patient |
-| PUT | `/api/patients/:id` | Doctor/Admin | Update patient |
-| DELETE | `/api/patients/:id` | Admin | Delete patient |
-| POST | `/api/health-data` | No | Store IoT reading |
-| GET | `/api/health-data/:patientId` | Yes | Get health history |
-| GET | `/api/alerts` | Yes | List alerts (role-filtered) |
-| GET | `/api/alerts/stats/summary` | Yes | Alert stats |
-| GET | `/api/alerts/my-patient-ids` | Yes | Accessible patient IDs |
-| PUT | `/api/alerts/:id/acknowledge` | Doctor/Admin | Acknowledge alert |
-| PUT | `/api/alerts/acknowledge-all` | Doctor/Admin | Bulk acknowledge |
-| POST | `/api/reports` | Yes | Upload report + AI analysis |
-| POST | `/api/reports/:id/analyze` | Yes | Re-analyze with lab values |
-| GET | `/api/reports/:patientId` | Yes | Get patient reports |
-| GET | `/api/admin/stats` | Admin | System statistics |
-| POST | `/api/admin/users` | Admin | Create accounts |
-| GET | `/api/admin/users` | Admin | All users |
-| PUT | `/api/admin/users/:id` | Admin | Update user role |
-| POST | `/api/chatbot` | Yes | Chat message |
-
----
-
-## 🔮 Roadmap
-
-- [x] **Phase 1** — IoT Simulator + Real-Time Dashboard + RBAC + AI Chatbot + Lab Report Analyzer
-- [ ] **Phase 2** — Hyperledger Fabric Blockchain + Searchable Encryption + ABAC
-- [ ] **Phase 3** — CNN-LSTM Intrusion Detection + Advanced Health Analytics
-
----
-
-## 📄 Documentation
-
-- [Project Documentation](PROJECT_DOCUMENTATION.md) — Full code explanations, architecture details, 16+ interview Q&As
-- [Hardware Guide](HARDWARE_GUIDE.md) — ESP32 wiring, Arduino code, sensor setup, troubleshooting
-
----
-
-## 📝 License
-
-This project is part of a Final Year academic project at Sagar Institute of Science & Technology, Bhopal.
-
----
-
-<div align="center">
-  <strong>Built with ❤️ for smarter healthcare</strong>
-</div>
+- [Complete Master Report & Viva Voce Guide (PDF)](COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.pdf)
+- [Complete Master Report & Viva Voce Guide (HTML)](docs/reports/COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.html)
+- [Complete Master Report & Viva Voce Guide (Markdown)](docs/reports/COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.md)
+- [Comprehensive Audit & Changes Report](docs/reports/COMPREHENSIVE_AUDIT_AND_CHANGES_REPORT.md)
+- [Project Documentation & Architecture](docs/reports/PROJECT_DOCUMENTATION.md)
+- [Database Security and Operations Manual](docs/technical_guides/DATABASE_SECURITY_AND_OPERATIONS.md)
+- [Hardware & Sensor Wiring Guide](docs/technical_guides/HARDWARE_GUIDE.md)
+- [Simulator and Evaluation Guide](docs/technical_guides/SIMULATOR_AND_EVALUATION.md)
