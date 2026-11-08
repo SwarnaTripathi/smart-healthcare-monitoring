@@ -1,0 +1,246 @@
+\documentclass[12pt,a4paper]{article}
+
+% ===== PACKAGES =====
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{eso-pic}
+
+% ===== PAGE BORDER (all pages) =====
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture, overlay]
+    % Outer border
+    \draw[line width=2pt, black]
+      ([shift={(0.5cm,0.5cm)}]current page.south west)
+      rectangle
+      ([shift={(-0.5cm,-0.5cm)}]current page.north east);
+    % Inner border
+    \draw[line width=0.5pt, black]
+      ([shift={(0.7cm,0.7cm)}]current page.south west)
+      rectangle
+      ([shift={(-0.7cm,-0.7cm)}]current page.north east);
+  \end{tikzpicture}%
+}
+
+% ===== PAGE STYLE =====
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Smart Healthcare Monitoring System}
+\fancyhead[R]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ===== SECTION FORMATTING =====
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{}{0em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{}{0em}{}
+
+\onehalfspacing
+
+% ===== DOCUMENT =====
+\begin{document}
+
+% ----- TITLE PAGE -----
+\begin{titlepage}
+\centering
+\vspace*{0.5cm}
+
+% ----- COLLEGE LOGO -----
+\includegraphics[width=4.5cm]{college.jpg}\\[0.5cm]
+
+{\LARGE\bfseries SMART HEALTHCARE MONITORING SYSTEM\\[0.3cm]}
+{\large Using IoT, Blockchain, and AI-Driven Analytics\\[1cm]}
+
+{\Large\bfseries Problem Statement, Related Works \& Motivation\\[0.2cm]}
+
+{\large\bfseries Submitted By:\\[0.5cm]}
+
+\begin{tabular}{lll}
+Debraj Singha & Autonomy Roll: 12623020022 & Roll No: 2363022 \\
+Souvik Kundu & Autonomy Roll: 12623020054 & Roll No: 2353047 \\
+Snehasis Bhattacharya & Autonomy Roll: 12623020050 & Roll No: 2363048 \\
+Swarnapravo Tripathi & Autonomy Roll: 12623020062 & Roll No: 2363059 \\
+Supratik Biswas & Autonomy Roll: 12623020060 & Roll No: 2363068 \\[0.5cm]
+\end{tabular}
+
+
+{\large\bfseries Under the supervision of:\\[0.3cm]}
+{\large Prof. Palash Dutta\\[0.2cm]}
+{\normalsize Department of Computer Science and Engineering\\
+(Internet of Things and Cyber Security including Block Chain Technology)\\}
+
+{\large\bfseries HERITAGE INSTITUTE OF TECHNOLOGY, KOLKATA\\[0.2cm]}
+{\large\bfseries MAULANA ABUL KALAM AZAD UNIVERSITY OF TECHNOLOGY, KOLKATA\\[1.5cm]}
+
+{\large MAY 2026}
+\end{titlepage}
+
+% =====================================================================
+% SECTION 1: IDENTIFIED PROBLEM STATEMENT
+% =====================================================================
+\section{Identified Problem Statement}
+
+In the traditional healthcare model, patients must physically visit a hospital for every check-up. Doctors rely on periodic readings taken during these visits, which means any health deterioration that happens \textit{between} visits goes completely unnoticed. This is especially dangerous for patients with heart disease, respiratory problems, or diabetes who need continuous monitoring.
+
+\vspace{0.2cm}
+\noindent \textbf{Our core problem:} There is no affordable, easy-to-use system that can continuously track a patient's heart rate, SpO2, and body temperature in real time, show it on a web dashboard, alert doctors automatically when something is wrong, and keep the data secure --- all in one platform.
+
+\subsection{Specific Problems We Identified}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{No Real-Time Monitoring:} Most systems send data every 10--30 seconds using MQTT or HTTP polling. In an emergency, even a 10-second delay can be critical. We needed WebSocket-based live streaming for instant updates.
+
+    \item \textbf{Only One Type of User:} Existing systems are built for doctors only. Patients cannot log in to see their own data, and there is no admin panel for managing the system. We needed three separate roles --- Patient, Doctor, and Admin --- each with their own dashboard.
+
+    \item \textbf{No Data Privacy Between Users:} In many systems, any logged-in doctor can see \textit{all} patient records. This is a privacy violation. We needed each doctor to see only their assigned patients, and each patient to see only their own data.
+
+    \item \textbf{Basic Alerts Only:} Existing systems use a single threshold (e.g., heart rate $>$ 120 = alert). This causes too many false alarms. We needed two levels: a \textbf{warning} level for borderline values and a \textbf{critical} level for dangerous values.
+
+    \item \textbf{No AI Features:} Current dashboards just display numbers. They don't help patients understand their health. We needed an AI chatbot that can answer health questions and an AI analyzer that can read lab reports and explain results.
+
+    \item \textbf{Poor Security:} Many prototypes store passwords in plain text and have no activity logs. We needed proper password hashing (bcrypt), token-based authentication (JWT), and audit logging.
+
+    \item \textbf{Hardware Dependency:} If the physical sensors are not available, the entire system cannot be tested. We needed a software simulator that mimics real sensor behavior for development and demonstrations.
+\end{itemize}
+
+\subsection{What Our System Solves}
+
+\begin{table}[H]
+\centering
+\caption{Problems and Our Solutions}
+\begin{tabular}{|p{5cm}|p{7cm}|}
+\hline
+\textbf{Problem} & \textbf{Our Solution} \\
+\hline
+Delayed data updates & Real-time WebSocket streaming via Socket.IO \\
+\hline
+Single user role & Three roles: Patient, Doctor, Admin \\
+\hline
+No data privacy & Role-based data isolation at database level \\
+\hline
+Basic single-level alerts & Dual-level alerts (warning + critical) with history \\
+\hline
+No intelligent features & AI chatbot (30+ intents) + AI lab report analyzer \\
+\hline
+Weak security & bcrypt + JWT + audit logging + file validation \\
+\hline
+Cannot test without hardware & Python IoT simulator + ESP32 hardware support \\
+\hline
+\end{tabular}
+\end{table}
+
+% =====================================================================
+% SECTION 2: RELATED WORKS
+% =====================================================================
+\section{Related Works}
+
+We studied several existing systems and research papers before building our system. Below is a summary of what others have done and what was missing in their work.
+
+\subsection{Alam et al. (2021) --- IoT Health Monitoring with Raspberry Pi}
+They built a cloud-based monitoring system using Raspberry Pi and pulse sensors. \textbf{What was good:} Showed that remote monitoring is possible using IoT. \textbf{What was missing:} Data was sent every 10 seconds (not real-time), no role-based access, no web dashboard with live charts.
+
+\subsection{Kumar and Sharma (2022) --- MERN Stack Patient Monitoring}
+They used the same technology stack as us (MongoDB, Express, React, Node.js) with Socket.IO. \textbf{What was good:} Real-time data streaming worked well. \textbf{What was missing:} Only one user role (doctor), no data isolation between doctors, no AI features, no alert persistence.
+
+\subsection{Zhang et al. (2020) --- Access Control in Health Records}
+They reviewed how access control should work in electronic health records. \textbf{What was good:} Showed that data-level isolation (not just route-level) is important. \textbf{What was missing:} Their work was only a theoretical review --- no actual system was built.
+
+\subsection{Patel et al. (2023) --- ESP32 ICU Monitoring with Alerts}
+They used ESP32 sensors with single-level threshold alerts. \textbf{What was good:} Hardware integration with ESP32 worked. \textbf{What was missing:} Only one alert level (critical), alerts disappeared after showing, no warning tier, no alert history.
+
+\subsection{Wang and Chen (2022) --- Medical Chatbot for Patient Triage}
+They built a rule-based chatbot for emergency departments with 15 intents. \textbf{What was good:} NLP-based intent detection for health queries. \textbf{What was missing:} Chatbot couldn't access patient's real-time data, worked independently from the monitoring system.
+
+\subsection{How Our System Compares}
+
+\begin{table}[H]
+\centering
+\caption{Feature Comparison with Existing Systems}
+\label{tab:comparison_report}
+\begin{tabular}{|p{3.5cm}|c|c|c|c|c|}
+\hline
+\textbf{Feature} & \textbf{Alam} & \textbf{Kumar} & \textbf{Patel} & \textbf{Wang} & \textbf{Ours} \\
+\hline
+Real-time streaming & \texttimes & \checkmark & \texttimes & \texttimes & \checkmark \\
+\hline
+3 User Roles & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+Data isolation & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+Dual-level alerts & \texttimes & \texttimes & Single & \texttimes & \checkmark \\
+\hline
+AI Chatbot & \texttimes & \texttimes & \texttimes & \checkmark & \checkmark \\
+\hline
+AI Lab Report Analysis & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+HW + Simulator & HW & Sim & HW & N/A & Both \\
+\hline
+Audit Logging & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Key Takeaway:} No existing system combines all these features. Each one solves only one or two problems. Our system brings everything together into one integrated platform.
+
+% =====================================================================
+% SECTION 3: MOTIVATION
+% =====================================================================
+\section{Motivation}
+
+\subsection{Why Remote Health Monitoring Matters Now}
+The COVID-19 pandemic showed us that hospitals can get overwhelmed, and patients with chronic diseases may not be able to visit for regular check-ups. A system that lets patients monitor their vitals from home --- and alerts their doctor when something is wrong --- can save lives. Our system monitors heart rate, SpO2, and temperature continuously and sends instant alerts.
+
+\subsection{Why Just Showing Data is Not Enough}
+Displaying numbers like ``Heart Rate: 135 bpm'' on a screen doesn't help a patient understand if that's normal or dangerous. Our system goes beyond raw display by providing:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Dual-level alerts} that classify readings as ``warning'' or ``critical''
+    \item \textbf{AI chatbot} that answers questions like ``Is my heart rate normal?''
+    \item \textbf{AI lab report analyzer} that reads uploaded reports and highlights abnormal values
+\end{itemize}
+
+\subsection{Why Patients Should Have Their Own Access}
+In most systems, only doctors can view health data. But patients want to track their own health too. Our system gives patients their own login and dashboard where they can see their vitals, view health history, upload reports, and chat with the AI assistant --- while keeping their data private from other patients.
+
+\subsection{Why Security Cannot Be Ignored}
+Health data is highly sensitive (called Protected Health Information or PHI). Storing passwords in plain text or having no activity logs is unacceptable. Our system uses:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{bcrypt} for password hashing (passwords are never stored in plain text)
+    \item \textbf{JWT tokens} for secure login sessions
+    \item \textbf{Role-based isolation} so users only see data they are authorized to see
+    \item \textbf{Audit logs} that record who did what and when
+\end{itemize}
+
+\subsection{Why We Built Both Hardware and Software Modes}
+During development and college demos, hardware sensors may not always be available. Our system works in two modes:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Hardware mode:} ESP32 microcontroller with MAX30102 (heart rate + SpO2) and DS18B20 (temperature) sends real data
+    \item \textbf{Simulator mode:} A Python script generates realistic fake data with natural variation for testing
+\end{itemize}
+Both modes use the same API endpoint, so switching between them requires zero code changes.
+
+\subsection{Why This Project Has Future Scope}
+Our system is Phase~1 of a three-phase plan:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Phase 1 (Current):} IoT monitoring + web dashboard + AI features + RBAC + alerts
+    \item \textbf{Phase 2 (Future):} Blockchain (Hyperledger Fabric) for tamper-proof health records
+    \item \textbf{Phase 3 (Future):} Deep learning (CNN-LSTM) for detecting network attacks on IoT devices
+\end{itemize}
+
+\vspace{0.3cm}
+\noindent \textbf{In short:} We built this system because no existing solution combines real-time IoT monitoring, multi-role access, AI intelligence, strong security, and hardware flexibility in a single, easy-to-use platform. Our goal is to make healthcare monitoring smarter, safer, and accessible to everyone.
+
+\end{document}

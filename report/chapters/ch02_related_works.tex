@@ -1,0 +1,52 @@
+\chapter{Related Works}
+
+This chapter reviews existing literature and systems in IoT-based healthcare monitoring, establishing the context for our proposed system.
+
+\section{IoT in Healthcare Monitoring}
+Alam et al. (2021) proposed a cloud-based IoT health monitoring framework using Raspberry Pi and pulse sensors. Their system demonstrated the feasibility of continuous remote monitoring but lacked real-time WebSocket-based streaming and role-based access control. The data was transmitted via MQTT protocol with a 10-second interval, resulting in delayed visualization.
+
+\section{Real-Time Patient Monitoring Systems}
+Kumar and Sharma (2022) developed a MERN-stack-based patient monitoring system with Socket.IO for real-time data transmission. While their architecture is similar to our approach, their system supported only a single user role (doctor) and did not implement data isolation or patient self-service features.
+
+\section{Role-Based Access Control in Health Systems}
+Zhang et al. (2020) explored RBAC implementations in Electronic Health Record (EHR) systems. Their work highlighted the importance of granular data-level access control beyond simple route-level authentication. Our system extends this concept by implementing three-tier data isolation: patients see only their own records, doctors see only assigned patients, and admins have full oversight.
+
+\section{Threshold-Based Alert Systems}
+Patel et al. (2023) implemented a threshold-based alerting mechanism for ICU monitoring using ESP32 sensors. Their thresholds were hardcoded for heart rate ($>$120 bpm) and SpO2 ($<$90\%). Our system enhances this with dual-level thresholds (warning and critical) for three vital parameters, persistent alert storage, and real-time broadcast via WebSocket.
+
+\section{AI Chatbots in Healthcare}
+Wang and Chen (2022) developed rule-based NLP chatbots for patient triage in emergency departments. Their regex-based intent detection approach for 15 medical intents served as inspiration for our chatbot, which extends coverage to 30+ intents including vitals queries, emergency guidance, first aid, and personalized health data retrieval from the database.
+
+\section{Blockchain in Health Data Security}
+Agbo et al. (2019) surveyed blockchain applications in healthcare, identifying Hyperledger Fabric as the most suitable permissioned blockchain for health record management. Their findings inform our Phase~2 design, where we plan to implement ABAC policies as smart contracts with AES-256 encryption for data at rest.
+
+\section{Intrusion Detection in IoT Networks}
+Li et al. (2021) proposed CNN-LSTM hybrid models for detecting network intrusions in IoT environments. Their model achieved 98.2\% accuracy on the NSL-KDD dataset by combining CNN's spatial feature extraction with LSTM's temporal sequence learning. This approach forms the basis for our planned Phase~3 implementation.
+
+\section{Comparative Analysis}
+\begin{table}[H]
+\centering
+\caption{Comparison with Existing Systems}
+\label{tab:comparison}
+\begin{tabular}{|p{3cm}|c|c|c|c|c|}
+\hline
+\textbf{Feature} & \textbf{Alam} & \textbf{Kumar} & \textbf{Patel} & \textbf{Wang} & \textbf{Ours} \\
+\hline
+Real-time WebSocket & \texttimes & \checkmark & \texttimes & \texttimes & \checkmark \\
+\hline
+Multi-role RBAC & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+Data-level isolation & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+Dual-level alerts & \texttimes & \texttimes & Single & \texttimes & \checkmark \\
+\hline
+AI Chatbot & \texttimes & \texttimes & \texttimes & \checkmark & \checkmark \\
+\hline
+Lab Report AI & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+Hardware + Simulator & HW only & Sim only & HW only & N/A & Both \\
+\hline
+Audit Logging & \texttimes & \texttimes & \texttimes & \texttimes & \checkmark \\
+\hline
+\end{tabular}
+\end{table}

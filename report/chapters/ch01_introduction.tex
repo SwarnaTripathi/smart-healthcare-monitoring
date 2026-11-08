@@ -1,0 +1,64 @@
+\chapter{Introduction}
+
+\section{Background}
+The healthcare industry is undergoing a digital transformation driven by the Internet of Things (IoT), enabling continuous remote patient monitoring that was previously only possible within hospital settings. Traditional healthcare monitoring requires patients to be physically present at medical facilities, creating delays in detecting critical health conditions. With the advent of wearable and portable IoT sensors, real-time health data can now be transmitted, processed, and visualized instantaneously.
+
+\section{Problem Statement}
+Current healthcare monitoring systems face several challenges:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Delayed Detection:} Manual periodic check-ups fail to capture sudden health deteriorations between visits.
+    \item \textbf{Data Silos:} Patient health records are scattered across multiple systems with no unified real-time view.
+    \item \textbf{Lack of Role-Based Access:} Many systems do not differentiate access levels between patients, doctors, and administrators, leading to potential data breaches.
+    \item \textbf{No Intelligent Alerting:} Simple threshold monitoring without context-aware alert generation leads to alert fatigue or missed critical events.
+    \item \textbf{Security Concerns:} Health data (PHI --- Protected Health Information) requires robust encryption, authentication, and audit trails.
+\end{itemize}
+
+\section{Objective}
+The objective of this project is to design and develop a \textbf{Smart Healthcare Monitoring System} that:
+\begin{enumerate}[leftmargin=*]
+    \item Collects patient vital signs (heart rate, SpO2, body temperature) from IoT sensors in real time.
+    \item Displays live health data on a responsive web dashboard with interactive visualizations.
+    \item Implements secure role-based access control (RBAC) for patients, doctors, and administrators.
+    \item Generates automated alerts when vital signs breach medically-defined thresholds.
+    \item Provides an AI-powered health chatbot for patient guidance.
+    \item Supports medical report uploads with AI-driven lab value analysis.
+    \item Establishes a foundation for future blockchain integration and AI-based intrusion detection.
+\end{enumerate}
+
+\section{Scope of the Project}
+This report documents \textbf{Phase~1} of a three-phase project:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Phase 1 (Current):} IoT data simulation and hardware integration, real-time dashboard, RBAC authentication, AI chatbot, alert system, and report analysis.
+    \item \textbf{Phase 2 (Planned):} Hyperledger Fabric blockchain for immutable health record storage with Attribute-Based Access Control (ABAC) and Secure Searchable Encryption (SSE).
+    \item \textbf{Phase 3 (Planned):} CNN-LSTM hybrid deep learning model for network intrusion detection on the IoT healthcare network.
+\end{itemize}
+
+\section{Technology Stack}
+\begin{table}[H]
+\centering
+\caption{Technology Stack Overview}
+\label{tab:techstack}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Layer} & \textbf{Technology} & \textbf{Purpose} \\
+\hline
+Frontend & React 19 + Vite & Single Page Application with real-time UI \\
+\hline
+Backend & Node.js + Express.js & REST API server with WebSocket support \\
+\hline
+Database & MongoDB + Mongoose & NoSQL data storage for flexible IoT data \\
+\hline
+Real-time & Socket.IO & Bidirectional WebSocket communication \\
+\hline
+Authentication & JWT + bcryptjs & Stateless token-based auth with hashed passwords \\
+\hline
+Visualization & Chart.js + react-chartjs-2 & Interactive health data charts \\
+\hline
+IoT Simulation & Python (requests) & Sensor data simulation with anomaly injection \\
+\hline
+IoT Hardware & ESP32 + MAX30102 + DS18B20 & Microcontroller with pulse oximeter \& thermometer \\
+\hline
+File Upload & Multer & Secure medical report upload middleware \\
+\hline
+\end{tabular}
+\end{table}

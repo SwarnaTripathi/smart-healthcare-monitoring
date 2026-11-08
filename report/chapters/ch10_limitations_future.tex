@@ -1,0 +1,55 @@
+\chapter{Present Limitations \& Future Scope}
+
+\section{Present Limitations}
+
+\subsection{WebSocket Authentication}
+Currently, Socket.IO connections do not require authentication. Any client that knows the server URL can connect and receive real-time health data broadcasts. In a production environment, WebSocket connections must be authenticated using JWT tokens during the handshake phase.
+
+\subsection{No Data Pagination}
+API endpoints return all matching records without pagination. For large-scale deployments with thousands of patients and millions of health readings, this will cause performance degradation and excessive memory usage. Cursor-based or offset-based pagination must be implemented.
+
+\subsection{Single-Server Architecture}
+The application runs on a single Node.js process. There is no load balancing, clustering, or horizontal scaling. Socket.IO sticky sessions would be required for multi-server deployment.
+
+\subsection{No HTTPS/SSL}
+All communication (HTTP and WebSocket) is unencrypted. In production, TLS certificates must be configured for end-to-end encryption of health data in transit.
+
+\subsection{No Email/SMS Notifications}
+Critical alerts are only displayed on the web dashboard. There is no external notification system (email, SMS, push notifications) to alert doctors and patients when they are not actively viewing the dashboard.
+
+\subsection{Rule-Based Chatbot Limitations}
+The AI chatbot uses regex-based pattern matching rather than machine learning NLP. It cannot handle complex conversational context, ambiguous queries, or languages other than English.
+
+\subsection{No Automated Testing}
+The system lacks automated unit tests, integration tests, and end-to-end tests. All testing was performed manually, which limits confidence in regression detection.
+
+\section{Future Scope}
+
+\subsection{Phase 2: Blockchain Integration}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Hyperledger Fabric:} Deploy a permissioned blockchain network for immutable health record storage.
+    \item \textbf{Smart Contracts:} Implement Attribute-Based Access Control (ABAC) policies as chaincode.
+    \item \textbf{Data Encryption:} AES-256 encryption for data at rest in MongoDB.
+    \item \textbf{Searchable Encryption:} Secure Searchable Encryption (SSE) to allow queries on encrypted health records without decryption.
+    \item \textbf{Immutable Audit Trail:} Every health data modification recorded on-chain for tamper-proof accountability.
+\end{itemize}
+
+\subsection{Phase 3: AI-Driven Intrusion Detection}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{CNN-LSTM Hybrid Model:} Convolutional Neural Network for spatial feature extraction from network traffic patterns, combined with Long Short-Term Memory for temporal sequence learning.
+    \item \textbf{Training Dataset:} NSL-KDD or CICIDS2017 datasets with normal traffic and attack patterns (DDoS, MITM, injection).
+    \item \textbf{Real-Time Detection:} Classify incoming network packets as normal or malicious with sub-second latency.
+    \item \textbf{Automated Response:} Trigger firewall rules and admin alerts upon intrusion detection.
+\end{itemize}
+
+\subsection{Additional Enhancements}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Progressive Web App (PWA):} Offline-capable mobile experience.
+    \item \textbf{Data Export:} CSV/PDF export for health records and analytics reports.
+    \item \textbf{Email/SMS Alerts:} Twilio and SendGrid integration for external notifications.
+    \item \textbf{Docker Containerization:} Microservices deployment with Docker Compose.
+    \item \textbf{MQTT Protocol:} Replace HTTP polling with MQTT for more efficient IoT communication.
+    \item \textbf{Redis Caching:} Cache frequently accessed patient data for sub-millisecond reads.
+    \item \textbf{Machine Learning Chatbot:} Upgrade to transformer-based NLP for better intent detection.
+    \item \textbf{Multi-language Support:} Localization for Hindi and Bengali patient interfaces.
+\end{itemize}

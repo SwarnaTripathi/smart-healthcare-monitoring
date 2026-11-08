@@ -1,0 +1,71 @@
+\chapter{Limitations of Existing Models}
+
+Despite significant advancements in IoT-based healthcare monitoring, existing systems exhibit several critical limitations that our project aims to address.
+
+\section{Single-Role Architecture}
+Most existing systems (Kumar 2022, Patel 2023) implement a single user role --- typically a doctor or administrator who views all patient data. This approach:
+\begin{itemize}[leftmargin=*]
+    \item Prevents patients from self-monitoring their health data.
+    \item Does not support multi-doctor environments where data isolation is critical.
+    \item Lacks administrative oversight for user management and audit trails.
+\end{itemize}
+
+\section{Lack of Data-Level Isolation}
+While some systems implement route-level access control, they fail to enforce data-level isolation. A doctor logged into the system can typically view \textit{all} patient records, not just their assigned patients. This violates the principle of least privilege and poses HIPAA/GDPR compliance risks.
+
+\section{Hardcoded Single-Level Thresholds}
+Existing alert systems (Patel 2023) use single-level thresholds (e.g., heart rate $>$ 120 = alert). This binary approach leads to:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Alert fatigue:} Too many false alarms for borderline readings.
+    \item \textbf{Missed gradual deterioration:} No warning level before critical escalation.
+    \item \textbf{No alert persistence:} Alerts are displayed momentarily and lost, with no acknowledgment workflow.
+\end{itemize}
+
+\section{No Patient Self-Registration Workflow}
+Most systems require administrators to manually create all user accounts. This creates bottlenecks and does not support a scalable patient onboarding process where patients can self-register and doctors subsequently assign them.
+
+\section{Absence of AI-Driven Analysis}
+Existing monitoring systems focus solely on real-time vital display without providing:
+\begin{itemize}[leftmargin=*]
+    \item AI-powered chatbot assistance for patient health queries.
+    \item Automated lab report analysis with reference range comparison.
+    \item Personalized health recommendations based on individual patient data.
+\end{itemize}
+
+\section{Limited Security Implementation}
+Many IoT healthcare prototypes lack fundamental security measures:
+\begin{itemize}[leftmargin=*]
+    \item Plain-text password storage instead of salted hashing.
+    \item No token expiration or refresh mechanism.
+    \item Absence of audit logging for accountability.
+    \item No file upload validation allowing potential malicious file injection.
+\end{itemize}
+
+\section{Hardware Dependency}
+Systems like Alam (2021) and Patel (2023) are tightly coupled to specific hardware, making them difficult to test, demonstrate, and develop without physical sensors. There is no software simulation capability for development and testing.
+
+\section{Summary of Gaps Addressed}
+\begin{table}[H]
+\centering
+\caption{Limitations Addressed by Our System}
+\label{tab:gaps}
+\begin{tabular}{|p{5cm}|p{7cm}|}
+\hline
+\textbf{Limitation} & \textbf{Our Solution} \\
+\hline
+Single-role architecture & Three roles: Patient, Doctor, Admin with separate dashboards \\
+\hline
+No data isolation & Role-based query filtering at database level \\
+\hline
+Single-level alerts & Dual-level (warning + critical) with persistence and acknowledgment \\
+\hline
+Manual user creation & Patient self-registration + doctor assignment workflow \\
+\hline
+No AI features & AI chatbot (30+ intents) + lab report analyzer (30+ tests) \\
+\hline
+Weak security & bcrypt hashing, JWT auth, file validation, audit logs \\
+\hline
+Hardware dependency & Python simulator + ESP32 hardware (same API endpoint) \\
+\hline
+\end{tabular}
+\end{table}

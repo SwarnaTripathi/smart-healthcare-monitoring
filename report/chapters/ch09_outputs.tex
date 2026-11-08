@@ -1,0 +1,114 @@
+\chapter{Graphs \& Outputs}
+
+This chapter presents the key output screens and visualizations of the Smart Healthcare Monitoring System. Screenshots should be inserted where indicated.
+
+\section{Login Page}
+The login page features a premium dark-themed interface with glassmorphism effects. Patient self-registration is restricted to the patient role only, preventing privilege escalation.
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/login_page.png}
+%\caption{Login and Patient Registration Page}
+%\label{fig:login}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of login page here]}
+
+\section{Doctor Dashboard --- Real-Time Vitals}
+The doctor dashboard displays live vital signs (heart rate, SpO2, temperature) for assigned patients. Chart.js line graphs show a sliding window of 30 data points updated in real time via Socket.IO.
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/doctor_dashboard.png}
+%\caption{Doctor Dashboard with Real-Time Chart.js Graphs}
+%\label{fig:doctordash}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of doctor dashboard here]}
+
+\section{Patient Dashboard}
+Patients see only their own health data, including latest vitals, historical charts, and personalized status cards color-coded by health status (green = normal, yellow = warning, red = critical).
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/patient_dashboard.png}
+%\caption{Patient Dashboard --- Own Data Only}
+%\label{fig:patientdash}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of patient dashboard here]}
+
+\section{Admin Dashboard}
+The admin dashboard provides a system-wide overview: total patients, active devices, recent alerts, and user statistics. Only accessible to admin-role users.
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/admin_dashboard.png}
+%\caption{Admin Dashboard --- System Overview}
+%\label{fig:admindash}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of admin dashboard here]}
+
+\section{Alert Management Panel}
+Alerts are displayed with color-coded severity (warning = amber, critical = red). Doctors and admins can acknowledge individual or all alerts. Patients see only their own alerts.
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/alerts_panel.png}
+%\caption{Alert Management with Acknowledge Functionality}
+%\label{fig:alerts}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of alerts page here]}
+
+\section{Patient Management --- Two-Step Add Flow}
+Doctors add patients via a two-step modal: Step 1 shows selectable user cards from the unlinked pool, Step 2 collects clinical details (age, blood group, medical history).
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/add_patient.png}
+%\caption{Two-Step Patient Addition Workflow}
+%\label{fig:addpatient}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of add patient modal here]}
+
+\section{AI Health Chatbot}
+The floating chatbot widget provides health guidance with quick-action buttons, typing animation, and message bubbles. It queries the actual patient database for personalized vitals responses.
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/chatbot.png}
+%\caption{AI Health Chatbot with Intent Detection}
+%\label{fig:chatbot}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of chatbot widget here]}
+
+\section{Medical Report Upload \& AI Analysis}
+Patients upload lab reports and enter test values. The AI analyzer compares values against 30+ gender-aware medical reference ranges and generates findings, recommendations, and wellness tips.
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.85\textwidth]{images/report_analysis.png}
+%\caption{AI-Powered Lab Report Analysis}
+%\label{fig:reportai}
+%\end{figure}
+
+\noindent\textit{[Insert screenshot of report analysis page here]}
+
+\section{Health Data History}
+Historical health readings are displayed with filterable date ranges and interactive Chart.js graphs showing trends for heart rate, SpO2, and temperature over time.
+
+\noindent\textit{[Insert screenshot of history page here]}
+
+\section{User Management (Admin)}
+Admins can create doctor/admin accounts, toggle user active status, and view all registered users with role badges.
+
+\noindent\textit{[Insert screenshot of user management page here]}
+
+\section{IoT Simulator Console Output}
+The Python simulator terminal shows real-time data transmission with status indicators: \texttt{[OK]} for normal, \texttt{[!!]} for warning, and \texttt{[XX]} for critical readings.
+
+\noindent\textit{[Insert screenshot of simulator terminal output here]}

@@ -1,0 +1,82 @@
+\chapter{Dataset Details}
+
+\section{Synthetic Data Generation}
+Since the system operates on live IoT sensor data, a comprehensive synthetic data seeder (\texttt{seed\_data.js}) was developed to generate realistic demo datasets for testing and demonstration.
+
+\section{Generated Dataset Composition}
+
+\begin{table}[H]
+\centering
+\caption{Synthetic Dataset Summary}
+\label{tab:dataset}
+\begin{tabular}{|l|c|p{6cm}|}
+\hline
+\textbf{Entity} & \textbf{Count} & \textbf{Description} \\
+\hline
+Users & 10 & 1 admin, 2 doctors, 5 linked patients, 2 unlinked patients \\
+\hline
+Patient Records & 5 & Linked to user accounts, round-robin assigned to doctors \\
+\hline
+Health Readings & 2,520 & 7 days $\times$ 72 readings/day $\times$ 5 patients \\
+\hline
+Alerts & $\sim$170 & Auto-generated from abnormal readings, 60\% pre-acknowledged \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Per-Patient Health Profiles}
+Each synthetic patient has unique base vitals and anomaly rates reflecting different medical conditions:
+
+\begin{table}[H]
+\centering
+\caption{Synthetic Patient Profiles}
+\label{tab:profiles}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Patient} & \textbf{Base HR} & \textbf{Base SpO2} & \textbf{Base Temp} & \textbf{Anomaly Rate} \\
+\hline
+Amit Kumar & 75 bpm & 97.5\% & 36.6\textdegree C & 8\% \\
+\hline
+Sneha Roy & 72 bpm & 98.0\% & 36.5\textdegree C & 6\% \\
+\hline
+Ravi Sharma & 80 bpm & 96.5\% & 36.8\textdegree C & 12\% \\
+\hline
+Anjali Patel & 68 bpm & 98.2\% & 36.4\textdegree C & 5\% \\
+\hline
+Vikram Singh & 78 bpm & 97.0\% & 36.7\textdegree C & 10\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{IoT Simulator Data Generation}
+The Python IoT simulator generates realistic readings using:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Sinusoidal variation:} Mimics natural circadian rhythm in vital signs.
+    \item \textbf{Gaussian noise:} Adds realistic sensor measurement noise.
+    \item \textbf{Anomaly injection:} 8\% chance per reading of generating anomalous values (high HR, low HR, low SpO2, or high temperature).
+    \item \textbf{Value clamping:} Ensures all generated values remain within physiologically plausible ranges.
+\end{itemize}
+
+\section{MongoDB Collections}
+\begin{table}[H]
+\centering
+\caption{Database Collections}
+\label{tab:collections}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Collection} & \textbf{Key Fields} \\
+\hline
+\texttt{users} & name, email, password (hashed), role, specialization, isActive \\
+\hline
+\texttt{patients} & patientId (auto: PT-00001), name, age, gender, bloodGroup, user (ref), assignedDoctor (ref) \\
+\hline
+\texttt{healthdatas} & patientId, deviceId, heartRate, spO2, temperature, status, timestamp \\
+\hline
+\texttt{alerts} & patientId, patientName, type (warning/critical), metric, message, value, acknowledged \\
+\hline
+\texttt{reports} & patientId, filename, filePath, labValues, analysis (AI-generated) \\
+\hline
+\texttt{auditlogs} & userId, action, target, details, timestamp \\
+\hline
+\end{tabular}
+\end{table}

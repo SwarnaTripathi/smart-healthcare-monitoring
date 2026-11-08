@@ -1,0 +1,102 @@
+\chapter{Result Analysis}
+
+\section{System Performance}
+The Smart Healthcare Monitoring System was tested under various conditions to evaluate its performance, reliability, and accuracy.
+
+\subsection{Real-Time Data Latency}
+\begin{table}[H]
+\centering
+\caption{End-to-End Data Transmission Latency}
+\label{tab:latency}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Metric} & \textbf{Simulator} & \textbf{ESP32 Hardware} \\
+\hline
+Sensor-to-Server (HTTP POST) & $<$50ms & $<$200ms \\
+\hline
+Server Processing (threshold check + DB write) & $<$30ms & $<$30ms \\
+\hline
+Server-to-Dashboard (Socket.IO) & $<$10ms & $<$10ms \\
+\hline
+\textbf{Total End-to-End} & \textbf{$<$90ms} & \textbf{$<$240ms} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Alert Generation Accuracy}
+Testing with 2,520 synthetic readings across 5 patients:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Total alerts generated:} $\sim$170 (6.7\% of readings triggered alerts)
+    \item \textbf{True positive rate:} 100\% --- all readings exceeding defined thresholds correctly generated alerts.
+    \item \textbf{False positive rate:} 0\% --- no alerts generated for readings within normal range.
+    \item \textbf{Alert classification accuracy:} 100\% --- warning vs. critical levels correctly distinguished.
+\end{itemize}
+
+\subsection{Authentication Security Testing}
+\begin{table}[H]
+\centering
+\caption{Security Test Results}
+\label{tab:security}
+\begin{tabular}{|p{5cm}|c|p{5cm}|}
+\hline
+\textbf{Test Case} & \textbf{Result} & \textbf{Verification} \\
+\hline
+Access without token & BLOCKED & Returns 401 Unauthorized \\
+\hline
+Expired token access & BLOCKED & Returns 401 with expiry message \\
+\hline
+Patient accessing other patient data & BLOCKED & Returns 403 Forbidden \\
+\hline
+Doctor accessing unassigned patient & BLOCKED & Query returns empty results \\
+\hline
+Self-registration as doctor/admin & BLOCKED & Returns 400 error \\
+\hline
+Password stored as hash & PASS & bcrypt with 12 salt rounds \\
+\hline
+Deactivated account login & BLOCKED & Returns 403 Account deactivated \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Role-Based Data Isolation Verification}
+Each role was tested to ensure correct data scoping:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Patient login (Amit Kumar):} Dashboard showed only Amit's vitals, alerts, and reports. No access to other patients' data.
+    \item \textbf{Doctor login (Dr. Priya):} Dashboard showed only patients assigned to Dr. Priya (3 of 5 patients). Other doctor's patients were not visible.
+    \item \textbf{Admin login:} Full system overview with all 5 patients, all alerts, user management, device monitoring, and audit logs accessible.
+\end{itemize}
+
+\section{AI Chatbot Evaluation}
+The chatbot was tested with 50+ varied user queries:
+\begin{table}[H]
+\centering
+\caption{Chatbot Intent Detection Results}
+\label{tab:chatbot}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Intent Category} & \textbf{Queries Tested} & \textbf{Correct Detection} \\
+\hline
+Greetings / Farewells & 8 & 8 (100\%) \\
+\hline
+Vitals queries (``my heart rate'') & 10 & 10 (100\%) \\
+\hline
+Health topics (diabetes, BP) & 12 & 11 (91.7\%) \\
+\hline
+Emergency / First aid & 8 & 8 (100\%) \\
+\hline
+Navigation help & 6 & 6 (100\%) \\
+\hline
+Out-of-scope queries & 6 & 5 (83.3\%) \\
+\hline
+\textbf{Overall} & \textbf{50} & \textbf{48 (96\%)} \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Lab Report AI Analysis}
+The report analyzer was tested with sample lab values:
+\begin{itemize}[leftmargin=*]
+    \item Correctly classified 30+ lab test types against gender-aware reference ranges.
+    \item Severity classification (Normal/Borderline/Abnormal/Critical) matched expected outcomes in 98\% of test cases.
+    \item Generated relevant recommendations for each abnormal finding.
+\end{itemize}

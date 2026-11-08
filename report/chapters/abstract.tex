@@ -1,0 +1,19 @@
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\LARGE\bfseries Abstract\\[1cm]}
+\end{center}
+
+The Smart Healthcare Monitoring System is a comprehensive IoT-based platform designed to continuously monitor patient vital signs including heart rate, blood oxygen saturation (SpO2), and body temperature in real time. The system integrates hardware sensors (ESP32 microcontroller with MAX30102 pulse oximeter and DS18B20 temperature sensor) with a modern full-stack web application built on the MERN stack (MongoDB, Express.js, React 19, Node.js).
+
+\vspace{0.4cm}
+The platform features a real-time dashboard powered by WebSocket communication (Socket.IO) that displays live patient vitals with interactive Chart.js visualizations. A robust Role-Based Access Control (RBAC) mechanism ensures secure, isolated data access across three user roles: patients (view own health data), doctors (monitor assigned patients), and administrators (full system oversight).
+
+\vspace{0.4cm}
+Key features include an AI-powered health chatbot with 30+ intent detection capabilities, automated threshold-based alert generation for abnormal vital signs, AI-driven lab report analysis supporting 30+ medical tests with gender-aware reference ranges, secure file upload for medical reports, and comprehensive audit logging. The system employs JWT authentication with bcrypt password hashing for robust security.
+
+\vspace{0.4cm}
+A Python-based IoT simulator mimics real sensor behavior using sinusoidal variation and Gaussian noise for testing. The hardware-agnostic REST API design allows seamless switching between simulated and real IoT devices. The project is designed as Phase~1 of a three-phase initiative, with future phases planned for Hyperledger Fabric blockchain integration and CNN-LSTM deep learning models for network intrusion detection.
+
+\vspace{0.8cm}
+\noindent\textbf{Keywords:} IoT, Healthcare Monitoring, MERN Stack, Real-Time Dashboard, WebSocket, Socket.IO, Role-Based Access Control, AI Chatbot, ESP32, MAX30102, DS18B20, Threshold-Based Alerts, JWT Authentication, MongoDB, React, Chart.js

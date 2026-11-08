@@ -167,13 +167,18 @@ python simulator/iot_simulator.py ALL --stop
 
 ---
 
-## 📄 Key Documentation Links
+## 📄 Key Documentation & Research Links
 
 - [Complete Master Report & Viva Voce Guide (PDF)](COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.pdf)
 - [Complete Master Report & Viva Voce Guide (HTML)](docs/reports/COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.html)
 - [Complete Master Report & Viva Voce Guide (Markdown)](docs/reports/COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.md)
 - [Comprehensive Audit & Changes Report](docs/reports/COMPREHENSIVE_AUDIT_AND_CHANGES_REPORT.md)
+- [Phase 3A Machine Learning Audit Report](docs/ML_PHASE3A_AUDIT_REPORT.md)
+- [MIMIC-IV Real-World Cohort Integration Guide](app/ml/MIMIC_IV_INTEGRATION_GUIDE.md)
+- [ML Deterioration Accuracy & Honest Baseline Analysis](ml_accuracy_honest_analysis.md)
+- [Gap Analysis & Architectural Remediation Report](docs/technical_guides/gap_report.md)
 - [Project Documentation & Architecture](docs/reports/PROJECT_DOCUMENTATION.md)
 - [Database Security and Operations Manual](docs/technical_guides/DATABASE_SECURITY_AND_OPERATIONS.md)
 - [Hardware & Sensor Wiring Guide](docs/technical_guides/HARDWARE_GUIDE.md)
 - [Simulator and Evaluation Guide](docs/technical_guides/SIMULATOR_AND_EVALUATION.md)
+- [Academic LaTeX Master Thesis Report Source](report/main.tex)

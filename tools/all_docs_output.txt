@@ -1,0 +1,365 @@
+﻿===== Smart_Healthcare_Final_Year_Project_Report.docx =====
+SMART HEALTHCARE MONITORING SYSTEM USING IoT, BLOCKCHAIN AND AI
+A Final Year Project Report
+Submitted in partial fulfillment of the requirements for the award of the degree
+Bachelor of Technology / Bachelor of Engineering
+Department of Computer Science / Electronics & Communication
+Academic Year: 2025ΓÇô2026
+ABSTRACT
+The rapid advancement of Internet of Things (IoT) technologies has transformed modern healthcare systems by enabling real-time monitoring of patientsΓÇÖ vital parameters. However, traditional centralized healthcare systems suffer from serious challenges such as data breaches, lack of transparency, unauthorized access, and inefficient data sharing. This project presents a Smart Healthcare Monitoring System that integrates IoT-based health sensing, Blockchain technology, secure searchable encryption, and Artificial Intelligence to provide a secure, scalable, and intelligent healthcare platform suitable for both personal and hospital use.
+TABLE OF CONTENTS
+(Automatically generated in MS Word)
+CHAPTER 1: INTRODUCTION
+1.1 Background
+Healthcare systems worldwide are undergoing digital transformation. Wearable sensors, mobile applications, and cloud platforms enable continuous monitoring of patients. Despite these advancements, data security and patient privacy remain critical concerns.
+1.2 Motivation
+The motivation for this project arises from the increasing number of healthcare data breaches and the need for a trustworthy system that ensures confidentiality, integrity, and availability of medical data.
+1.3 Objectives
+ΓÇó Design a smart health monitoring system using IoT sensors
+ΓÇó Secure patient data using blockchain technology
+ΓÇó Enable encrypted keyword-based search on health records
+ΓÇó Implement AI-based intrusion detection
+ΓÇó Make the system usable for both individuals and hospitals
+CHAPTER 2: LITERATURE REVIEW
+This chapter reviews existing healthcare monitoring systems, blockchain-based healthcare models, secure searchable encryption techniques, and AI-based intrusion detection mechanisms.
+Several studies highlight the use of blockchain to decentralize healthcare data storage. However, most systems focus only on data storage and lack efficient encrypted search mechanisms.
+CHAPTER 3: PROBLEM STATEMENT
+Existing healthcare systems rely on centralized architectures that are vulnerable to cyberattacks. Moreover, searching encrypted medical records without compromising privacy is a significant challenge.
+CHAPTER 4: PROPOSED SYSTEM
+4.1 Overview
+The proposed system integrates IoT devices, blockchain, homomorphic encryption, and AI to form a secure and intelligent healthcare monitoring framework.
+4.2 System Architecture
+The system architecture consists of four layers:
+1. IoT Sensor Layer
+2. Edge & Network Layer
+3. Blockchain & Security Layer
+4. Application Layer
+Figure: High-Level System Architecture Diagram (to be added)
+CHAPTER 5: HARDWARE REQUIREMENTS
+ΓÇó ESP32 Microcontroller
+ΓÇó Heart Rate & SpO2 Sensor (MAX30102)
+ΓÇó Temperature Sensor (DS18B20)
+ΓÇó Wi-Fi Module
+ΓÇó Power Supply
+ΓÇó Computer / Server / Raspberry Pi
+CHAPTER 6: SOFTWARE REQUIREMENTS
+ΓÇó Arduino IDE / ESP-IDF
+ΓÇó Python 3.x
+ΓÇó Hyperledger Fabric
+ΓÇó Node.js
+ΓÇó TensorFlow / Keras
+ΓÇó MongoDB / IPFS
+ΓÇó Docker
+ΓÇó Linux / Windows OS
+CHAPTER 7: SECURITY MECHANISMS
+This system employs homomorphic encryption to allow keyword search on encrypted healthcare data. Blockchain ensures immutability and transparency, while attribute-based access control restricts data access to authorized users only.
+CHAPTER 8: NEURAL NETWORK & INTRUSION DETECTION
+Hybrid Deep Neural Networks (CNN + LSTM) are used to detect intrusions and malicious activities in the IoT network, ensuring system reliability.
+CHAPTER 9: RESULTS AND DISCUSSION
+The proposed system demonstrates improved security, efficient data access, and real-time monitoring. Blockchain-based storage ensures tamper-proof records.
+CHAPTER 10: CONCLUSION AND FUTURE WORK
+This project successfully demonstrates a secure and intelligent healthcare monitoring system. Future work includes scalability testing, mobile app integration, and deployment in real hospital environments.
+REFERENCES
+Ali, A. et al., "An Industrial IoT-Based Blockchain-Enabled Secure Searchable Encryption Approach for Healthcare Systems Using Neural Network", Sensors, 2022.
+
+===== Chapter1_Chapter2_Expanded.docx =====
+CHAPTER 1: INTRODUCTION
+The healthcare industry is experiencing a rapid digital transformation driven by advancements in Internet of Things (IoT), cloud computing, artificial intelligence, and blockchain technologies. Traditional healthcare systems largely depend on centralized infrastructures, which often result in problems such as data breaches, lack of interoperability, limited transparency, and poor patient control over personal health records.
+1.1 Background of Healthcare Digitization
+Healthcare digitization refers to the adoption of digital technologies to improve the efficiency, accuracy, and accessibility of medical services. Wearable health sensors, electronic health records (EHR), telemedicine platforms, and mobile health applications have enabled continuous patient monitoring and remote diagnosis.
+1.2 Role of IoT in Healthcare
+IoT plays a crucial role in smart healthcare by enabling real-time collection of physiological data such as heart rate, body temperature, blood oxygen level, and blood pressure. These IoT devices reduce hospital workload, enable early diagnosis, and support elderly and chronic patient care.
+1.3 Blockchain in Healthcare
+Blockchain technology introduces decentralization, immutability, and transparency into healthcare systems. It ensures secure data sharing among hospitals, laboratories, doctors, and patients without relying on a single trusted authority. Hyperledger Fabric, a permissioned blockchain framework, is especially suitable for healthcare applications.
+1.4 Artificial Intelligence in Healthcare Security
+Artificial Intelligence enhances healthcare systems by enabling intelligent decision-making, predictive analysis, and automated threat detection. Deep learning models such as CNN and LSTM are widely used for intrusion detection in IoT networks.
+1.5 Motivation
+The motivation behind this project is to design a secure, scalable, and intelligent healthcare monitoring system that protects patient privacy while enabling efficient data access for both individual users and hospitals.
+1.6 Objectives
+ΓÇó Develop an IoT-based health monitoring system
+ΓÇó Secure healthcare data using blockchain
+ΓÇó Enable encrypted keyword-based search
+ΓÇó Implement AI-based intrusion detection
+ΓÇó Support both personal and hospital usage
+CHAPTER 2: LITERATURE REVIEW
+This chapter presents a comprehensive review of existing research works related to IoT-based healthcare systems, blockchain-enabled healthcare solutions, secure searchable encryption, and artificial intelligence-based security mechanisms.
+2.1 IoT-Based Healthcare Monitoring Systems
+Several IoT-based healthcare systems have been proposed to monitor patient health parameters in real time. These systems primarily focus on data acquisition and visualization but often lack robust security mechanisms.
+2.2 Blockchain-Based Healthcare Systems
+Blockchain has been widely adopted to secure medical records. Systems such as MedRec use blockchain for managing access permissions; however, they suffer from scalability and encrypted search limitations.
+2.3 Secure Searchable Encryption
+Searchable encryption allows users to search encrypted data without decryption. Traditional searchable encryption schemes face challenges related to efficiency and key management.
+2.4 Homomorphic Encryption
+Homomorphic encryption enables computation on encrypted data. Although computationally intensive, it offers strong privacy guarantees and is suitable for sensitive healthcare applications.
+2.5 AI-Based Intrusion Detection in IoT
+Machine learning and deep learning models such as CNN, LSTM, and hybrid networks have shown promising results in detecting cyber-attacks in IoT networks.
+2.6 Research Gap
+Most existing systems focus on either healthcare monitoring or data security. There is a lack of integrated solutions that combine IoT, blockchain, encrypted search, and AI-based intrusion detection into a single framework.
+
+===== Chapter2_Literature_Review_Expanded_Full.docx =====
+CHAPTER 2: LITERATURE REVIEW (EXTENDED)
+2.1 IoT-Based Healthcare Monitoring Systems
+Internet of Things (IoT) has significantly transformed healthcare by enabling continuous and remote monitoring of patients. Wearable sensors and smart medical devices collect physiological parameters such as heart rate, body temperature, blood pressure, and oxygen saturation. These systems reduce hospital visits, enable early disease detection, and support elderly care. However, most IoT healthcare systems rely on centralized cloud servers, which introduce single points of failure and serious security vulnerabilities.
+2.2 Limitations of Traditional IoT Healthcare Systems
+Traditional IoT healthcare systems face challenges such as data privacy risks, unauthorized access, lack of standardized access control, and vulnerability to cyber-attacks. The absence of proper encryption and trust management makes sensitive patient data prone to breaches.
+2.3 Blockchain-Based Healthcare Systems
+Blockchain technology has emerged as a promising solution for secure medical data management. By using distributed ledgers, blockchain eliminates centralized control and ensures data integrity. Systems such as MedRec and MedChain leverage blockchain for managing electronic health records and access permissions.
+2.4 Hyperledger Fabric in Healthcare
+Hyperledger Fabric is a permissioned blockchain framework that provides identity management, access control, and scalability. It is well-suited for healthcare applications where participants such as hospitals, doctors, and patients are known entities.
+2.5 Secure Searchable Encryption Techniques
+Secure Searchable Encryption (SSE) enables users to search encrypted data without revealing plaintext information. Although SSE improves privacy, existing approaches suffer from inefficiency, limited keyword support, and complex key management.
+2.6 Homomorphic Encryption for Healthcare
+Homomorphic Encryption allows computation on encrypted data without decryption. In healthcare, it enables secure analysis of patient data while preserving confidentiality. Despite its high computational cost, it provides strong privacy guarantees.
+2.7 Attribute-Based Access Control Models
+Attribute-Based Access Control (ABAC) allows flexible and fine-grained access decisions based on user attributes such as role, trust level, and permissions. Compared to traditional role-based models, ABAC offers better scalability and security.
+2.8 Artificial Intelligence in Healthcare Security
+Artificial Intelligence techniques, particularly machine learning and deep learning, have been widely used to enhance healthcare security. AI models analyze network traffic and system behavior to detect anomalies and cyber-attacks.
+2.9 Intrusion Detection Systems for IoT
+IoT networks are highly vulnerable to attacks such as denial-of-service, spoofing, and malware injection. Intrusion Detection Systems (IDS) based on CNN and LSTM models have demonstrated high accuracy in identifying malicious activities.
+2.10 Comparative Analysis of Existing Systems
+Most existing healthcare systems focus on either monitoring or security but not both. Blockchain-based systems improve data integrity but lack efficient encrypted search. AI-based IDS systems enhance security but are rarely integrated with blockchain frameworks.
+2.11 Research Gap Identification
+There is a clear research gap in developing an integrated healthcare system that combines IoT-based health monitoring, blockchain-enabled secure data sharing, searchable encryption, and AI-based intrusion detection. This gap motivates the proposed system.
+
+===== Chapter3_and_Chapter5_System_Architecture.docx =====
+CHAPTER 3: EXISTING SYSTEM AND PROBLEM STATEMENT
+3.1 Existing Healthcare Monitoring Systems
+Most existing healthcare monitoring systems are based on centralized cloud architectures. Wearable devices and sensors collect patient data and transmit it to a central server where storage and analysis are performed. Although such systems provide convenience and remote access, they suffer from serious drawbacks related to security, privacy, and scalability.
+3.2 Architecture of Existing System
+In a typical existing system, IoT devices send health data directly to a cloud server. Doctors and hospitals access this data through web or mobile applications. The entire system depends on a single trusted authority, creating a single point of failure.
+3.3 Limitations of Existing System
+ΓÇó Centralized data storage leads to single-point failure
+ΓÇó High risk of data breaches and cyber-attacks
+ΓÇó Lack of patient control over medical records
+ΓÇó No encrypted keyword-based search
+ΓÇó Poor scalability and interoperability
+3.4 Problem Statement
+There is a need for a secure, decentralized, and intelligent healthcare monitoring system that ensures patient privacy, enables controlled data sharing, supports encrypted search, and detects malicious activities in IoT networks.
+CHAPTER 5: SYSTEM ARCHITECTURE
+5.1 Overview of Proposed Architecture
+The proposed Smart Healthcare Monitoring System follows a layered architecture that integrates IoT devices, blockchain technology, secure encryption mechanisms, and artificial intelligence. The architecture ensures scalability, security, and real-time monitoring.
+5.2 Layered Architecture Description
+The architecture is divided into four layers:
+1. IoT Sensor Layer
+2. Edge & Network Layer
+3. Blockchain & Security Layer
+4. Application Layer
+5.3 IoT Sensor Layer
+This layer consists of wearable sensors such as heart rate, SpO2, and temperature sensors. These sensors are connected to an ESP32 microcontroller which collects and preprocesses data before transmission.
+5.4 Edge and Network Layer
+The edge layer handles communication between IoT devices and backend systems. Secure protocols such as HTTPS and MQTT are used to transmit encrypted data.
+5.5 Blockchain and Security Layer
+Hyperledger Fabric is used as a permissioned blockchain network. This layer enforces access control, immutability, and secure searchable encryption.
+5.6 Application Layer
+The application layer provides dashboards for patients and doctors, real-time alerts, and data visualization features.
+5.7 Data Flow Diagram (DFD) Description
+The Data Flow Diagram illustrates how data flows from sensors to blockchain storage and finally to authorized users. Data is encrypted before storage and decrypted only for authorized entities.
+5.8 Use Case Diagram Description
+The Use Case Diagram identifies actors such as Patient, Doctor, Hospital Admin, and Blockchain Network. Each actor interacts with the system based on access privileges.
+5.9 Sequence Diagram Description
+The Sequence Diagram shows the step-by-step interaction between IoT devices, blockchain, and application layer during data upload and retrieval.
+
+===== Chapter4_Proposed_System.docx =====
+CHAPTER 4: PROPOSED SYSTEM
+4.1 Overview of the Proposed System
+The proposed Smart Healthcare Monitoring System is designed to overcome the limitations of traditional centralized healthcare platforms. It integrates Internet of Things (IoT) devices, blockchain technology, secure searchable encryption, and artificial intelligence to provide a secure, decentralized, and intelligent healthcare solution suitable for both personal and hospital environments.
+4.2 Design Goals
+The primary design goals of the proposed system are:
+ΓÇó Data confidentiality and privacy preservation
+ΓÇó Decentralized and tamper-proof data storage
+ΓÇó Secure and efficient access control
+ΓÇó Real-time health monitoring
+ΓÇó Scalability and reliability
+ΓÇó Compatibility with hospital systems and personal use
+4.3 Functional Requirements
+The functional requirements of the system include:
+ΓÇó Collection of real-time health data from IoT sensors
+ΓÇó Secure transmission of health data
+ΓÇó Blockchain-based storage of encrypted health records
+ΓÇó Keyword-based search on encrypted data
+ΓÇó Access control for doctors, patients, and administrators
+ΓÇó Intrusion detection and alert generation
+4.4 Non-Functional Requirements
+Non-functional requirements define the quality attributes of the system:
+ΓÇó Security: Protection against unauthorized access
+ΓÇó Performance: Low latency in data access
+ΓÇó Scalability: Support for increasing users and data volume
+ΓÇó Reliability: Continuous system availability
+ΓÇó Usability: Simple interfaces for users
+4.5 Modules of the Proposed System
+The proposed system is divided into the following modules:
+1. IoT Data Acquisition Module
+2. Data Encryption Module
+3. Blockchain Storage Module
+4. Secure Search Module
+5. Access Control Module
+6. Intrusion Detection Module
+7. User Interface Module
+4.6 IoT Data Acquisition Module
+This module consists of wearable sensors and microcontrollers that collect vital parameters such as heart rate, SpO2, and body temperature. Data is preprocessed before transmission.
+4.7 Blockchain Storage Module
+Encrypted health data is stored on a Hyperledger Fabric blockchain. The blockchain ensures immutability, transparency, and distributed access control.
+4.8 Secure Search and Access Control Module
+The secure search module allows authorized users to search encrypted data using keywords without revealing sensitive information. Attribute-based access control ensures fine-grained permissions.
+4.9 Intrusion Detection Module
+Artificial intelligence models such as CNN and LSTM are used to detect anomalous network behavior and potential cyber-attacks in the IoT infrastructure.
+4.10 Advantages of the Proposed System
+ΓÇó Enhanced data security and privacy
+ΓÇó Decentralized architecture
+ΓÇó Secure encrypted data search
+ΓÇó AI-based threat detection
+ΓÇó Suitable for personal and hospital use
+
+===== Chapter6_Hardware_Requirements.docx =====
+CHAPTER 6: HARDWARE REQUIREMENTS
+6.1 Overview
+Hardware components play a crucial role in the implementation of the proposed Smart Healthcare Monitoring System. The selection of hardware is based on cost-effectiveness, availability, ease of integration, and suitability for real-time healthcare monitoring.
+6.2 ESP32 Microcontroller
+The ESP32 microcontroller is used as the core processing unit in the IoT sensor layer. It supports Wi-Fi and Bluetooth connectivity, low power consumption, and sufficient processing capability to handle sensor data acquisition and preprocessing.
+6.3 Heart Rate and SpO2 Sensor (MAX30102)
+The MAX30102 sensor is used to measure heart rate and blood oxygen saturation (SpO2). It is widely used in wearable healthcare devices due to its accuracy, low power consumption, and compact size.
+6.4 Temperature Sensor (DS18B20)
+The DS18B20 digital temperature sensor provides accurate body temperature readings. It offers high precision, digital output, and ease of interfacing with microcontrollers.
+6.5 Power Supply Unit
+A reliable power supply is essential for continuous operation. The system uses rechargeable battery modules or USB power supply depending on deployment requirements.
+6.6 Server / Raspberry Pi
+A server or Raspberry Pi is used to host blockchain services, data processing modules, and dashboards. It ensures availability and computational support for backend operations.
+6.7 Hardware Requirement Summary Table
+
+===== Chapter7_Software_Requirements.docx =====
+CHAPTER 7: SOFTWARE REQUIREMENTS
+7.1 Overview
+The software stack of the proposed Smart Healthcare Monitoring System is designed to support IoT data acquisition, secure data processing, blockchain-based storage, artificial intelligence analytics, and user interaction. All software tools selected are open-source, scalable, and suitable for academic as well as real-world prototype deployment.
+7.2 Operating System
+The system is implemented on Linux and Windows operating systems. Linux is preferred for deploying backend services such as blockchain nodes and Docker containers due to its stability and security, while Windows is used for development and testing.
+7.3 Arduino IDE / ESP-IDF
+Arduino IDE and ESP-IDF are used to program the ESP32 microcontroller. These platforms provide libraries for sensor integration, Wi-Fi communication, and real-time data transmission.
+7.4 Hyperledger Fabric
+Hyperledger Fabric is a permissioned blockchain framework used to store encrypted healthcare data. It provides features such as identity management, smart contracts, access control policies, and private channels, making it ideal for healthcare applications.
+7.5 Docker and Containerization
+Docker is used to containerize blockchain components, backend services, and databases. Containerization simplifies deployment, improves scalability, and ensures consistency across different environments.
+7.6 Programming Languages
+Python is used for backend logic, encryption, and machine learning implementation. Node.js is used to interact with Hyperledger Fabric through SDKs and to develop REST APIs.
+7.7 Database and Storage
+MongoDB is used for off-chain storage of encrypted healthcare records, while IPFS can be integrated for decentralized file storage. Blockchain stores hashes and access metadata.
+7.8 Artificial Intelligence Frameworks
+TensorFlow and Keras are used to develop deep learning models such as CNN and LSTM for intrusion detection and anomaly analysis in IoT networks.
+7.9 Visualization and User Interface
+Web-based dashboards are developed using HTML, CSS, JavaScript, and Node.js. These dashboards provide real-time health monitoring, alerts, and access control interfaces.
+7.10 Software Requirement Summary Table
+
+===== Chapter8_Security_and_Encryption.docx =====
+CHAPTER 8: SECURITY AND ENCRYPTION MECHANISMS
+8.1 Overview
+Security is a critical requirement in healthcare systems due to the sensitive nature of patient data. The proposed system incorporates multiple security layers using blockchain, cryptographic techniques, and access control mechanisms to ensure confidentiality, integrity, and availability of healthcare data.
+8.2 Blockchain-Based Security
+Blockchain technology provides decentralization, immutability, and transparency. By using Hyperledger Fabric, the system ensures that patient records cannot be altered once stored. Each transaction is validated through consensus, preventing unauthorized modifications.
+8.3 Data Encryption Mechanism
+All healthcare data is encrypted before storage. Encryption ensures that even if data is accessed by unauthorized entities, the information remains unreadable. The system uses encryption techniques to protect data both in transit and at rest.
+8.4 Homomorphic Encryption
+Homomorphic Encryption allows computations to be performed directly on encrypted data without the need for decryption. This enables secure processing and searching of patient records while maintaining complete data confidentiality.
+8.5 Secure Searchable Encryption
+Secure Searchable Encryption (SSE) enables keyword-based searching over encrypted healthcare data. Authorized users can retrieve relevant records without exposing sensitive information or decrypting the entire dataset.
+8.6 Attribute-Based Access Control (ABAC)
+Attribute-Based Access Control ensures fine-grained authorization by evaluating user attributes such as role, trust level, and permissions. Doctors, patients, and administrators are granted different access rights based on predefined policies.
+8.7 Key Management and Revocation
+The system supports secure key management and revocation mechanisms. If a key is compromised or lost, access policies can be updated and new keys can be issued without affecting other users.
+8.8 Trust Management Model
+A trust management model evaluates user behavior and interaction patterns. Users are categorized into trust levels, and access decisions are dynamically adjusted to prevent malicious activities.
+8.9 Security Advantages of the Proposed System
+ΓÇó End-to-end encryption of healthcare data
+ΓÇó Tamper-proof blockchain storage
+ΓÇó Secure encrypted search functionality
+ΓÇó Fine-grained access control
+ΓÇó Resistance to cyber-attacks and insider threats
+
+===== All_Required_Diagrams_and_Figures_List.docx =====
+LIST OF REQUIRED DIAGRAMS, FIGURES, AND GRAPHS
+This document lists all diagrams, figures, and graphs required for the Smart Healthcare Monitoring System final-year project report. Each item clearly mentions the chapter it belongs to and its purpose. These figures can be drawn using tools like draw.io, PowerPoint, Visio, or inserted as screenshots/plots.
+CHAPTER 1: INTRODUCTION
+Figure 1: Evolution of Healthcare Systems (Traditional ΓåÆ Digital ΓåÆ Smart Healthcare)
+Figure 2: Role of IoT, Blockchain, and AI in Modern Healthcare (Conceptual Diagram)
+CHAPTER 2: LITERATURE REVIEW
+Figure 1: Comparison of Existing Healthcare Systems (Table/Chart)
+Figure 2: Centralized vs Decentralized Healthcare Architecture Diagram
+Figure 3: Blockchain-Based Healthcare Data Sharing Model
+Figure 4: Taxonomy of Security Techniques in Healthcare Systems
+CHAPTER 3: EXISTING SYSTEM AND PROBLEM STATEMENT
+Figure 1: Architecture of Existing Centralized Healthcare System
+Figure 2: Limitations of Existing System (Block Diagram)
+CHAPTER 4: PROPOSED SYSTEM
+Figure 1: Overall Proposed System Architecture
+Figure 2: Module-Level Block Diagram of Proposed System
+Figure 3: Functional Workflow of the Proposed System
+CHAPTER 5: SYSTEM ARCHITECTURE
+Figure 1: Layered Architecture of Smart Healthcare System
+Figure 2: IoT Sensor Layer Architecture
+Figure 3: Blockchain Network Architecture (Hyperledger Fabric)
+Figure 4: Data Flow Diagram (DFD ΓÇô Level 0)
+Figure 5: Data Flow Diagram (DFD ΓÇô Level 1)
+Figure 6: Use Case Diagram
+Figure 7: Sequence Diagram for Data Upload
+Figure 8: Sequence Diagram for Data Retrieval
+CHAPTER 6: HARDWARE REQUIREMENTS
+Figure 1: ESP32 Microcontroller Board
+Figure 2: MAX30102 Heart Rate and SpO2 Sensor
+Figure 3: DS18B20 Temperature Sensor
+Figure 4: Hardware Connection Diagram
+CHAPTER 7: SOFTWARE REQUIREMENTS
+Figure 1: Hyperledger Fabric Network Setup Diagram
+Figure 2: Docker-Based Deployment Architecture
+Figure 3: Software Stack Architecture Diagram
+CHAPTER 8: SECURITY AND ENCRYPTION MECHANISMS
+Figure 1: Blockchain-Based Security Framework
+Figure 2: Homomorphic Encryption Workflow
+Figure 3: Secure Searchable Encryption Process
+Figure 4: Attribute-Based Access Control Model
+Figure 5: Trust Management Architecture
+CHAPTER 9: AI AND INTRUSION DETECTION SYSTEM
+Figure 1: Intrusion Detection System Architecture
+Figure 2: CNN-LSTM Hybrid Model Architecture
+Figure 3: AI Training and Testing Workflow
+Figure 4: Attack Classification Process Diagram
+CHAPTER 10: IMPLEMENTATION DETAILS
+Figure 1: Overall System Flowchart
+Figure 2: Algorithm Flowchart for Data Collection
+Figure 3: Algorithm Flowchart for Intrusion Detection
+CHAPTER 11: RESULTS AND PERFORMANCE ANALYSIS
+Figure 1: System Latency Graph
+Figure 2: Throughput Performance Graph
+Figure 3: Intrusion Detection Accuracy Graph
+Figure 4: Comparison Graph with Existing Systems
+Figure 5: False Positive Rate Analysis Graph
+
+===== Smart_Healthcare_Blockchain_Research_Report.docx =====
+Research Report: Secure Smart Healthcare Monitoring System
+Abstract
+This report summarizes and adapts the research paper titled 'An Industrial IoT-Based Blockchain-Enabled Secure Searchable Encryption Approach for Healthcare Systems Using Neural Network'. The goal is to explain the research and present a feasible implementation plan suitable for a college final-year project, including smart health monitoring for personal and hospital use.
+Introduction
+Modern healthcare systems require secure, scalable, and privacy-preserving mechanisms to manage patient health records. With the rise of IoT-based health devices and cloud services, data security and trust have become critical challenges. Blockchain, combined with IoT and AI, offers a decentralized and secure solution for healthcare data sharing.
+Problem Statement
+Existing healthcare systems often rely on centralized servers, making them vulnerable to data breaches, unauthorized access, and data manipulation. Additionally, searching encrypted health records efficiently remains a challenge.
+Proposed Solution
+The research proposes a blockchain-enabled healthcare framework using Hyperledger Fabric, homomorphic searchable encryption, and hybrid deep neural networks. Patient data is encrypted before storage, access is controlled using attribute-based policies, and intrusion detection is performed using AI models.
+System Architecture
+The system consists of IoT health sensors, edge devices, blockchain network, encrypted data storage, and user interfaces for patients and doctors. Sensors collect health data, which is encrypted and stored on the blockchain with controlled access.
+Smart Health Monitoring Features
+Vital sign monitoring (heart rate, SpO2, body temperature), emergency alerts, health history tracking, anomaly detection using ML, and dashboards for hospitals and individuals.
+Security Mechanisms
+Homomorphic encryption enables secure keyword search on encrypted data. Blockchain ensures immutability and transparency. Attribute-based access control and key revocation mechanisms prevent unauthorized access.
+Neural Network and Intrusion Detection
+Hybrid deep neural networks (CNN + LSTM) are used to detect malicious activities in the network, ensuring trust and system reliability.
+Implementation Feasibility
+For a college project, simplified versions can be implemented using ESP32 sensors, Python, TensorFlow, Hyperledger Fabric test network, and cloud dashboards. Full medical certification is not required for prototype demonstration.
+Conclusion
+This research demonstrates that combining IoT, blockchain, encryption, and AI can create a secure and efficient healthcare monitoring system. With careful simplification, the proposed framework is feasible for a final-year engineering project.
+References
+Ali, A. et al., Sensors 2022, 22, 572. An Industrial IoT-Based Blockchain-Enabled Secure Searchable Encryption Approach for Healthcare Systems Using Neural Network.
+
+===== Final_Project_Core_Diagrams.docx =====
+SMART HEALTHCARE SYSTEM ΓÇô DIAGRAMS
+Chapter 4: Overall System Architecture
+Chapter 5: Layered Architecture
+Chapter 5: Data Flow Diagram (Level 0)
+Chapter 9: CNN-LSTM Intrusion Detection Model
+

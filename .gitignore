@@ -6,20 +6,22 @@ package-lock.json
 .env
 .env.local
 .env.production
+!.env.example
 
 # Uploads (user-generated content)
-app/server/uploads/
+app/server/uploads/*
+!app/server/uploads/.gitkeep
 
 # Build output
 app/client/dist/
 
-# IDE
+# IDE & Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# Operating System
 .DS_Store
 Thumbs.db
 
@@ -32,20 +34,15 @@ venv/
 # Logs
 *.log
 
-# Temporary/Generated files
-all_docs_output.txt
-generate_doc.py
-read_docs.py
-gen_report.py
-gen_report_part1.py
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc
 
-# Report generation (academic docs - not part of source code)
-*.docx
-*.pdf
-*.tex
-report/
-template_image.jpeg
-sensors-*.pdf
-
-# Gemini
+# Gemini Assistant Cache
 .gemini/

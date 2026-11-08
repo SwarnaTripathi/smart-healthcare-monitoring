@@ -1,0 +1,157 @@
+\chapter{Code Snippets}
+
+This chapter presents key code excerpts from the system implementation with explanations.
+
+\section{User Model with Password Hashing (models/User.js)}
+\begin{lstlisting}[language=Java, caption={User Schema with bcrypt Pre-save Hook}]
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  password: { type: String, required: true, minlength: 6 },
+  role: { type: String, enum: ['patient', 'doctor', 'admin'], default: 'patient' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(12);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+\end{lstlisting}
+
+\section{JWT Authentication Middleware (middleware/auth.js)}
+\begin{lstlisting}[language=Java, caption={JWT Verification and RBAC Middleware}]
+const auth = async (req, res, next) => {
+  const authHeader = req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Access denied.' });
+  }
+  const token = authHeader.replace('Bearer ', '');
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const user = await User.findById(decoded.userId).select('-password');
+  if (!user || !user.isActive) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  req.user = user;
+  next();
+};
+
+// Role-based access control
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+    next();
+  };
+};
+\end{lstlisting}
+
+\section{Alert Threshold Checker (utils/alertChecker.js)}
+\begin{lstlisting}[language=Java, caption={Dual-Level Health Threshold Evaluation}]
+const THRESHOLDS = {
+  heartRate: {
+    critical: { min: 40, max: 150 },
+    warning:  { min: 50, max: 120 }
+  },
+  spO2: {
+    critical: { min: 0, max: 90 },
+    warning:  { min: 0, max: 94 }
+  },
+  temperature: {
+    critical: { min: 35.0, max: 39.5 },
+    warning:  { min: 36.0, max: 38.0 }
+  }
+};
+
+async function checkThresholds(data, io) {
+  const { patientId, heartRate, spO2, temperature } = data;
+  const alerts = [];
+  // Check each vital against thresholds
+  if (heartRate < THRESHOLDS.heartRate.critical.min ||
+      heartRate > THRESHOLDS.heartRate.critical.max) {
+    alerts.push({ patientId, type: 'critical', metric: 'heartRate',
+      message: `CRITICAL: Heart rate is ${heartRate} bpm` });
+  }
+  // Save alerts and broadcast via Socket.IO
+  if (alerts.length > 0) {
+    const saved = await Alert.insertMany(alerts);
+    saved.forEach(a => io.emit('new-alert', a));
+  }
+  return { status: alerts.length ? 'critical' : 'normal', alerts };
+}
+\end{lstlisting}
+
+\section{IoT Data Ingestion Endpoint (routes/healthData.js)}
+\begin{lstlisting}[language=Java, caption={Real-time IoT Data Processing and Broadcast}]
+router.post('/', async (req, res) => {
+  const { patientId, deviceId, heartRate, spO2, temperature } = req.body;
+  const patient = await Patient.findOne({ patientId });
+  const io = req.app.get('io');
+
+  // Check thresholds and generate alerts
+  const { status } = await checkThresholds(
+    { patientId, patientName: patient?.name, heartRate, spO2, temperature }, io);
+
+  // Save to MongoDB
+  const healthData = new HealthData({
+    patientId, deviceId, heartRate, spO2, temperature, status });
+  await healthData.save();
+
+  // Broadcast via Socket.IO for real-time dashboard
+  io.emit('health-data', {
+    patientId, heartRate, spO2, temperature, status,
+    timestamp: healthData.timestamp });
+  res.status(201).json({ data: healthData, status });
+});
+\end{lstlisting}
+
+\section{IoT Simulator (simulator/iot\_simulator.py)}
+\begin{lstlisting}[language=Python, caption={Python Sensor Simulator with Anomaly Injection}]
+def simulate_reading(t):
+    # Natural sinusoidal variation (circadian rhythm)
+    hr_variation = math.sin(t * 0.05) * 5 + random.gauss(0, 2)
+    spo2_variation = math.sin(t * 0.03) * 0.8 + random.gauss(0, 0.3)
+    temp_variation = math.sin(t * 0.02) * 0.2 + random.gauss(0, 0.05)
+
+    heart_rate = round(base_hr + hr_variation)
+    spo2 = round(base_spo2 + spo2_variation, 1)
+    temperature = round(base_temp + temp_variation, 1)
+
+    # 8% chance of anomaly per reading
+    if random.random() < 0.08:
+        anomaly = random.choice(['high_hr','low_hr','low_spo2','high_temp'])
+        if anomaly == 'high_hr': heart_rate = random.randint(125, 160)
+        elif anomaly == 'low_spo2': spo2 = round(random.uniform(85, 92), 1)
+    return heart_rate, spo2, temperature
+
+# Send via HTTP POST every 3 seconds
+payload = {"patientId": PATIENT_ID, "heartRate": hr,
+           "spO2": spo2, "temperature": temp}
+requests.post(SERVER_URL, json=payload, timeout=5)
+\end{lstlisting}
+
+\section{React Role-Based Routing (App.jsx)}
+\begin{lstlisting}[language=Java, caption={Role-Based Dashboard Routing in React}]
+function RoleDashboard() {
+  const { user } = useAuth();
+  if (user?.role === 'admin') return <AdminDashboard />;
+  if (user?.role === 'patient') return <PatientDashboard />;
+  return <Dashboard />;  // Doctor dashboard
+}
+
+function ProtectedRoute({ children, roles }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/" replace />;
+  if (roles && !roles.includes(user.role))
+    return <Navigate to="/dashboard" replace />;
+  return children;
+}
+\end{lstlisting}
