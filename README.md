@@ -167,6 +167,38 @@ python simulator/iot_simulator.py ALL --stop
 
 ---
 
+## 📡 API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | No | Create patient account |
+| POST | `/api/auth/login` | No | Login + get JWT |
+| GET | `/api/auth/me` | Yes | Get current user profile |
+| GET | `/api/patients` | Yes | List patients (role-filtered) |
+| GET | `/api/patients/:id` | Yes | Get single patient record |
+| GET | `/api/patients/unlinked-users` | Doctor/Admin | Unassigned patients |
+| GET | `/api/patients/stats/summary` | Yes | Patient stats (role-scoped) |
+| POST | `/api/patients` | Doctor/Admin | Add new patient record |
+| PUT | `/api/patients/:id` | Doctor/Admin | Update patient details |
+| DELETE | `/api/patients/:id` | Admin | Delete patient record |
+| POST | `/api/health-data` | Device Key / JWT | Ingest 7 ICU telemetry vitals & trigger ML alert engine |
+| GET | `/api/health-data/:patientId` | Yes | Get historical vital series |
+| GET | `/api/alerts` | Yes | List alerts (role & patient filtered) |
+| GET | `/api/alerts/stats/summary` | Yes | Alert statistics & triage counts |
+| GET | `/api/alerts/my-patient-ids` | Yes | Accessible patient IDs list |
+| PUT | `/api/alerts/:id/acknowledge` | Doctor/Admin | Acknowledge active alert |
+| PUT | `/api/alerts/acknowledge-all` | Doctor/Admin | Bulk acknowledge alerts |
+| POST | `/api/reports` | Yes | Upload clinical report + AI extraction |
+| POST | `/api/reports/:id/analyze` | Yes | Re-analyze report lab values |
+| GET | `/api/reports/:patientId` | Yes | Retrieve patient clinical reports |
+| GET | `/api/admin/stats` | Admin | System statistics & hospital metrics |
+| POST | `/api/admin/users` | Admin | Provision staff/patient accounts |
+| GET | `/api/admin/users` | Admin | List all registered users |
+| PUT | `/api/admin/users/:id` | Admin | Modify user roles & permissions |
+| POST | `/api/chatbot` | Yes | AI Medical assistant consultation |
+
+---
+
 ## 📄 Key Documentation & Research Links
 
 - [Complete Master Report & Viva Voce Guide (PDF)](COMPLETE_PROJECT_REPORT_AND_VIVA_GUIDE.pdf)
@@ -182,3 +214,15 @@ python simulator/iot_simulator.py ALL --stop
 - [Hardware & Sensor Wiring Guide](docs/technical_guides/HARDWARE_GUIDE.md)
 - [Simulator and Evaluation Guide](docs/technical_guides/SIMULATOR_AND_EVALUATION.md)
 - [Academic LaTeX Master Thesis Report Source](report/main.tex)
+
+---
+
+## 📝 License & Affiliation
+
+This project is part of a Final Year academic project at **Heritage Institute of Technology, Kolkata**.
+
+---
+
+<div align="center">
+  <strong>Built with ❤️ for smarter healthcare</strong>
+</div>
